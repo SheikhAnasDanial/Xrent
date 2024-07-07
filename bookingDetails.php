@@ -1,4 +1,12 @@
 <?php
+
+session_start();
+
+if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+    header("Location: login.html");
+    exit();
+}
+
 // Include database connection
 require_once 'dbConnect.php';
 
@@ -170,7 +178,8 @@ mysqli_close($dbCon);
             border: 1px solid black;
             padding: 10px;
             width: calc(100% - 10px);
-            position: relative;
+            position: fixed;
+            top: 1px;
             z-index: 2;
         }
 
@@ -211,10 +220,11 @@ mysqli_close($dbCon);
         }
 
         .main-content {
+            margin-top: 9rem;
             margin-left: 220px;
             padding: 20px;
             background-color: #E1E1E1; /* Changed background color */
-            min-height: 100vh;
+            min-height: 80vh;
         }
 
         .header-container {
@@ -313,7 +323,7 @@ mysqli_close($dbCon);
                     <img class="iconarrow" src="image/icon arrow.svg" alt="Icon Arrow">
                 </a>
                 <div class="dropdown-content">
-                    <a href="login.html">Log Out</a>
+                    <a href="logout.php">Log Out</a>
                 </div>
             </div>
         </nav>

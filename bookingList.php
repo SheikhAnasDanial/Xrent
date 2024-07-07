@@ -1,5 +1,16 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+    header("Location: login.html");
+    exit();
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +18,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=ABeeZee:ital@0;1&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap');
+
         body {
             font-family: 'Poppins', sans-serif;
             margin: 0;
@@ -89,7 +101,8 @@
             border: 1px solid black;
             padding: 10px;
             width: calc(100% - 10px);
-            position: relative;
+            position: fixed;
+            top: 1px;
             z-index: 2;
         }
 
@@ -130,10 +143,11 @@
         }
 
         .main-content {
+            margin-top: 9rem;
             margin-left: 220px;
             padding: 20px;
             background-color: #E1E1E1;
-            min-height: 100vh;
+            min-height: 75vh;
         }
 
         .book-list {
@@ -143,7 +157,8 @@
             background-color: #fff;
         }
 
-        .book-list th, .book-list td {
+        .book-list th,
+        .book-list td {
             padding: 10px;
             border: 1px solid #ddd;
             text-align: center;
@@ -167,19 +182,19 @@
         .search-container {
             display: flex;
             justify-content: flex-end;
-            align-items: center; 
-            margin-bottom: 10px; 
-            margin-top: 0; 
+            align-items: center;
+            margin-bottom: 10px;
+            margin-top: 0;
         }
 
         .search-container input {
-            padding: 8px; 
+            padding: 8px;
             margin-right: 15px;
             border-radius: 8px;
             border: 1px solid rgba(0, 0, 0, 0.70);
             background-color: #fff;
             font-size: 14px;
-            width: 150px; 
+            width: 150px;
             height: 25px;
         }
 
@@ -243,16 +258,24 @@
 
         /* Modal styles */
         .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1000; /* Sit on top */
-            padding-top: 100px; /* Location of the box */
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            /* Stay in place */
+            z-index: 1000;
+            /* Sit on top */
+            padding-top: 100px;
+            /* Location of the box */
             left: 0;
             top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
+            width: 100%;
+            /* Full width */
+            height: 100%;
+            /* Full height */
+            overflow: auto;
+            /* Enable scroll if needed */
+            background-color: rgba(0, 0, 0, 0.9);
+            /* Black w/ opacity */
         }
 
         .modal-content {
@@ -285,6 +308,7 @@
         }
     </style>
 </head>
+
 <body>
     <header class="header">
         <img class="logo" src="image/logo.svg" alt="Logo XRENT">
@@ -295,7 +319,8 @@
                     <img class="iconarrow" src="image/icon arrow.svg" alt="Icon Arrow">
                 </a>
                 <div class="dropdown-content">
-                    <a href="login.html">Log Out</a>
+                    <a href="adminDashboard.php">Dashboard</a>
+                    <a href="logout.php">Log Out</a>
                 </div>
             </div>
         </nav>
@@ -338,7 +363,7 @@
                 </tr>
             </thead>
             <tbody>
-            <?php
+                <?php
                 // Include database connection
                 require_once 'dbConnect.php';
 
@@ -406,14 +431,14 @@
                         echo "</td>";
                         echo "<td class='action'>
                             <a href='bookingDetails.php?bookID={$row['bookID']}&status={$row['bookStatus']}'>View Details</a>
-                        </td>";                
+                        </td>";
                         echo "</tr>";
                     }
                 } else {
                     echo "<tr><td colspan='8'>No bookings found</td></tr>";
                 }
                 mysqli_close($dbCon);
-            ?>
+                ?>
             </tbody>
         </table>
 
@@ -436,25 +461,26 @@
             </div>
         </div>
 
-    <!-- JavaScript for modal functionality -->
-    <script>
-        document.querySelectorAll('.receipt').forEach(item => {
-            item.addEventListener('click', event => {
-                let receiptImageSrc = item.getAttribute('data-receipt-src');
-                document.getElementById('modalImage').src = receiptImageSrc;
-                document.getElementById('myModal').style.display = "block";
+        <!-- JavaScript for modal functionality -->
+        <script>
+            document.querySelectorAll('.receipt').forEach(item => {
+                item.addEventListener('click', event => {
+                    let receiptImageSrc = item.getAttribute('data-receipt-src');
+                    document.getElementById('modalImage').src = receiptImageSrc;
+                    document.getElementById('myModal').style.display = "block";
+                });
             });
-        });
 
-        document.querySelector('.close').addEventListener('click', () => {
-            document.getElementById('myModal').style.display = "none";
-        });
-
-        window.addEventListener('click', event => {
-            if (event.target === document.getElementById('myModal')) {
+            document.querySelector('.close').addEventListener('click', () => {
                 document.getElementById('myModal').style.display = "none";
-            }
-        });
-    </script>
+            });
+
+            window.addEventListener('click', event => {
+                if (event.target === document.getElementById('myModal')) {
+                    document.getElementById('myModal').style.display = "none";
+                }
+            });
+        </script>
 </body>
+
 </html>

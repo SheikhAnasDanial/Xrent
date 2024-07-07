@@ -1,3 +1,13 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+    header("Location: login.html");
+    exit();
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -119,7 +129,8 @@
             border: 1px solid black;
             padding: 10px;
             width: calc(100% - 10px);
-            position: relative;
+            position: fixed;
+            top: 1px;
             z-index: 2;
         }
 
@@ -162,6 +173,7 @@
         .main-content {
             display: flex;
             justify-content: space-between;
+            margin-top: 9rem;
             margin-left: 220px;
             padding: 20px;
             background-color: #E1E1E1;
@@ -311,7 +323,7 @@
                     <img class="iconarrow" src="image/icon arrow.svg" alt="Icon Arrow">
                 </a>
                 <div class="dropdown-content">
-                    <a href="login.html">Log Out</a>
+                    <a href="logout.php">Log Out</a>
                 </div>
             </div>
         </nav>

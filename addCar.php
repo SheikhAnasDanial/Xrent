@@ -1,65 +1,23 @@
 <?php
-require_once 'dbConnect.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Generate carID
-    $query = "SELECT MAX(SUBSTRING(carID, 2)) AS max_id FROM car";
-    $result = mysqli_query($dbCon, $query);
-    $row = mysqli_fetch_assoc($result);
-    $max_id = $row['max_id'];
-    $new_id = intval($max_id) + 1;
-    $carID = 'C' . sprintf('%03d', $new_id);
+session_start();
 
-    $carName = mysqli_real_escape_string($dbCon, $_POST['name']);
-    $carType = mysqli_real_escape_string($dbCon, $_POST['type']);
-    $carBrand = mysqli_real_escape_string($dbCon, $_POST['brand']);
-    $seatNumber = mysqli_real_escape_string($dbCon, $_POST['seat-no']);
-    $gearbox = mysqli_real_escape_string($dbCon, $_POST['gearbox']);
-    $fuelType = mysqli_real_escape_string($dbCon, $_POST['fuel']);
-    $availability = mysqli_real_escape_string($dbCon, $_POST['availability']);
-    $ratePerHour = mysqli_real_escape_string($dbCon, $_POST['rate-per-hour']);
-
-    // Handle file upload for car image
-    if ($_FILES['car-image']['error'] === UPLOAD_ERR_OK) {
-        $uploadDirectory = 'image/car/';
-        $fileName = $_FILES['car-image']['name'];
-        $fileTmpPath = $_FILES['car-image']['tmp_name'];
-
-        $targetFilePath = $uploadDirectory . basename($fileName);
-
-        // Attempt to move the uploaded file
-        if (move_uploaded_file($fileTmpPath, $targetFilePath)) {
-            // File was successfully uploaded, proceed with database insertion
-            $fileContent = addslashes(file_get_contents($targetFilePath));
-
-            // Insert into database
-            $sql = "INSERT INTO `car` (`carID`, `carName`, `carType`, `carBrand`, `carSeatNum`, `carGear`, `carFuel`, `carAvailability`, `image`, `carRatePerHour`)
-                    VALUES ('$carID', '$carName', '$carType', '$carBrand', '$seatNumber', '$gearbox', '$fuelType', '$availability', '$fileContent', '$ratePerHour')";
-
-            if (mysqli_query($dbCon, $sql)) {
-                echo "New car record created successfully";
-            } else {
-                echo "Error: " . $sql . "<br>" . mysqli_error($dbCon);
-            }
-        } else {
-            echo "Sorry, there was an error uploading your file.";
-        }
-    } else {
-        echo "Please choose a file.";
-    }
-
-    mysqli_close($dbCon);
+if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+    header("Location: login.html");
+    exit();
 }
+
+require_once 'dbConnect.php';
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Car</title>
     <style>
-        
         @import url('https://fonts.googleapis.com/css2?family=ABeeZee:ital@0;1&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap');
 
@@ -174,7 +132,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border: 1px solid black;
             padding: 10px;
             width: calc(100% - 10px);
-            position: relative;
+            position: fixed;
+            top: 1px;
             z-index: 2;
         }
 
@@ -217,6 +176,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .main-content {
             display: flex;
             justify-content: space-between;
+            margin-top: 9rem;
             margin-left: 220px;
             padding: 20px;
             background-color: #E1E1E1;
@@ -253,7 +213,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             width: 100%;
             display: block;
             margin-right: 20px;
-            vertical-align: top;
         }
 
         .add-car-btn {
@@ -303,7 +262,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: red;
         }
 
-        .imagepreview-container { 
+        .imagepreview-container {
             margin-top: 90px;
         }
 
@@ -376,8 +335,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     </style>
 </head>
+
 <body>
-    <header class="header"> 
+    <header class="header">
         <img class="logo" src="image/logo.svg" alt="Logo XRENT">
         <nav class="navbar">
             <div class="dropdown">
@@ -394,7 +354,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <!-- Admin Header and Sidebar -->
     <div class="admin-header">
-        <p><hl>ADMIN PORTAL</hl></p>
+        <p>
+            <hl>ADMIN PORTAL</hl>
+        </p>
     </div>
     <div class="sidebar">
         <a href="bookingList.php">Manage Booking</a>
@@ -406,7 +368,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="main-content">
         <div class="form-container">
             <h1>ADD CAR</h1>
-            <form action="addCar.php" method="post" enctype="multipart/form-data">
+            <form action="insertCar.php" method="post" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="name">Car Name <span class="required">*</span></label>
                     <input type="text" id="name" name="name" required>
@@ -471,14 +433,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <a href="carList.php" class="cancel-btn">Cancel</a>
                     <button type="submit" class="add-car-btn">Add Car</button>
                 </div>
-            </form>
         </div>
         <div class="imagepreview-container">
             <label for="car-image">Car Image <span class="required">*</span></label>
-            <input type="file" id="car-image" name="car-image" accept="image/*" required onchange="previewImage(event)">
+            <input type="file" id="car-image" name="car-image" id="car-image" accept="image/*" required onchange="previewImage(event)">
             <a class="choose-image-link" href="#" onclick="document.getElementById('car-image').click(); return false;">Choose Image</a>
             <div class="image-preview" id="imagePreview"></div>
         </div>
+        </form>
     </div>
 
     <!-- JavaScript for Image Preview -->
@@ -493,4 +455,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     </script>
 </body>
+
 </html>

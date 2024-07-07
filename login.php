@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['password'] = $password;
 
             if ($role == 'Admin') {
-                echo "<script>window.location.href = 'bookingList.php';</script>";
+                echo "<script>window.location.href = 'adminDashboard.php';</script>";
             } elseif ($role == 'Cust') {
                 echo "<script>window.location.href = 'homepage.php';</script>";
             }

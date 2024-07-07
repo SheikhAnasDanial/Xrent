@@ -1,10 +1,17 @@
 <?php
-    session_start();
-    require_once "dbConnect.php"; 
+session_start();
+
+if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+    header("Location: login.html");
+    exit();
+}
+
+require_once "dbConnect.php";
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -123,7 +130,8 @@
             border: 1px solid black;
             padding: 10px;
             width: calc(100% - 10px);
-            position: relative;
+            position: fixed;
+            top: 1px;
             z-index: 2;
         }
 
@@ -164,10 +172,11 @@
         }
 
         .main-content {
+            margin-top: 9rem;
             margin-left: 220px;
             padding: 20px;
             background-color: #E1E1E1;
-            min-height: 100vh;
+            min-height: 80vh;
         }
 
         .car-list {
@@ -177,7 +186,8 @@
             background-color: #fff;
         }
 
-        .car-list th, .car-list td {
+        .car-list th,
+        .car-list td {
             padding: 10px;
             border: 1px solid #ddd;
             text-align: center;
@@ -299,11 +309,12 @@
             if (confirm("Are you sure you want to delete this car?")) {
                 window.location.href = 'deleteCar.php?id=' + carID;
             } else {
-                return false; 
+                return false;
             }
         }
     </script>
 </head>
+
 <body>
     <header class="header">
         <img class="logo" src="image/logo.svg" alt="Logo XRENT">
@@ -314,13 +325,16 @@
                     <img class="iconarrow" src="image/icon arrow.svg" alt="Icon Arrow">
                 </a>
                 <div class="dropdown-content">
-                    <a href="login.html">Log Out</a>
+                    <a href="adminDashboard.php">Dashboard</a>
+                    <a href="logout.php">Log Out</a>
                 </div>
             </div>
         </nav>
     </header>
     <div class="admin-header">
-        <p><hl>ADMIN PORTAL</hl></p>
+        <p>
+            <hl>ADMIN PORTAL</hl>
+        </p>
     </div>
     <div class="sidebar">
         <a href="bookingList.php">Manage Booking</a>
@@ -336,22 +350,22 @@
             </div>
         </div>
         <?php
-            // Update message
-            if (isset($_SESSION['success_message'])) {
-                echo '<div class="success-message">' . $_SESSION['success_message'] . '</div>';
-                unset($_SESSION['success_message']);
-            }
-            if (isset($_SESSION['error_message'])) {
-                echo '<div class="error-message">' . $_SESSION['error_message'] . '</div>';
-                unset($_SESSION['error_message']);
-            }
+        // Update message
+        if (isset($_SESSION['success_message'])) {
+            echo '<div class="success-message">' . $_SESSION['success_message'] . '</div>';
+            unset($_SESSION['success_message']);
+        }
+        if (isset($_SESSION['error_message'])) {
+            echo '<div class="error-message">' . $_SESSION['error_message'] . '</div>';
+            unset($_SESSION['error_message']);
+        }
 
-            // Delete message
-            if (isset($_GET['status']) && isset($_GET['message'])) {
-                $status = $_GET['status'];
-                $message = $_GET['message'];
-                echo '<div class="alert ' . ($status == 'success' ? 'alert-success' : 'alert-error') . '">' . htmlspecialchars($message) . '</div>';
-            }
+        // Delete message
+        if (isset($_GET['status']) && isset($_GET['message'])) {
+            $status = $_GET['status'];
+            $message = $_GET['message'];
+            echo '<div class="alert ' . ($status == 'success' ? 'alert-success' : 'alert-error') . '">' . htmlspecialchars($message) . '</div>';
+        }
         ?>
         <table class="car-list">
             <thead>
@@ -396,7 +410,7 @@
                         echo "<td>" . $row['carType'] . "</td>";
                         echo "<td>" . $row['carBrand'] . "</td>";
                         echo "<td>" . $row['carName'] . "</td>";
-                        echo "<td>" . ($row['carAvailability'] == 'YES' ? 'AVAILABLE' : 'NOT AVAILABLE') . "</td>";
+                        echo "<td>" . ($row['carAvailability'] == 'Yes' ? 'AVAILABLE' : 'NOT AVAILABLE') . "</td>";
                         echo '<td class="action"><a href="carDetail.php?id=' . $row['carID'] . '">Edit</a> <a href="#" onclick="return showConfirmation(\'' . $row['carID'] . '\')">Delete</a></td>';
                         echo "</tr>";
                         $index++;
@@ -418,21 +432,22 @@
         </table>
         <div class="pagination-box">
             <div class="pagination">
-                <?php if ($page > 1): ?>
+                <?php if ($page > 1) : ?>
                     <a href="?page=<?php echo $page - 1; ?>">Previous</a>
                 <?php endif; ?>
-                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                    <?php if ($i == $page): ?>
+                <?php for ($i = 1; $i <= $total_pages; $i++) : ?>
+                    <?php if ($i == $page) : ?>
                         <span><?php echo $i; ?></span>
-                    <?php else: ?>
+                    <?php else : ?>
                         <a href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
                     <?php endif; ?>
                 <?php endfor; ?>
-                <?php if ($page < $total_pages): ?>
+                <?php if ($page < $total_pages) : ?>
                     <a href="?page=<?php echo $page + 1; ?>">Next</a>
                 <?php endif; ?>
             </div>
         </div>
     </div>
 </body>
+
 </html>

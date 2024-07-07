@@ -1,4 +1,11 @@
 <?php
+session_start();
+
+if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+    header("Location: login.html");
+    exit();
+}
+
 include 'dbConnect.php';
 
 // Pagination variables
@@ -35,6 +42,7 @@ $result = mysqli_query($dbCon, $sql);
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -154,7 +162,8 @@ $result = mysqli_query($dbCon, $sql);
             border: 1px solid black;
             padding: 10px;
             width: calc(100% - 10px);
-            position: relative;
+            position: fixed;
+            top: 1px;
             z-index: 2;
         }
 
@@ -195,20 +204,24 @@ $result = mysqli_query($dbCon, $sql);
         }
 
         .main-content {
+            margin-top: 9rem;
             margin-left: 220px;
             padding: 20px;
-            background-color: #E1E1E1; /* Changed background color */
-            min-height: 100vh;
+            background-color: #E1E1E1;
+            /* Changed background color */
+            min-height: 75vh;
         }
 
         .feedback-list {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
-            background-color: #fff; /* Table background color */
+            background-color: #fff;
+            /* Table background color */
         }
 
-        .feedback-list th, .feedback-list td {
+        .feedback-list th,
+        .feedback-list td {
             padding: 10px;
             border: 1px solid #ddd;
             text-align: center;
@@ -317,6 +330,7 @@ $result = mysqli_query($dbCon, $sql);
         }
     </style>
 </head>
+
 <body>
     <header class="header">
         <img class="logo" src="image/logo.svg" alt="Logo XRENT">
@@ -327,18 +341,21 @@ $result = mysqli_query($dbCon, $sql);
                     <img class="iconarrow" src="image/icon arrow.svg" alt="Icon Arrow">
                 </a>
                 <div class="dropdown-content">
-                    <a href="login.html">Log Out</a>
+                    <a href="adminDashboard.php">Dashboard</a>
+                    <a href="logout.php">Log Out</a>
                 </div>
             </div>
         </nav>
     </header>
 
     <div class="admin-header">
-        <p><hl>ADMIN PORTAL</hl></p>
+        <p>
+            <hl>ADMIN PORTAL</hl>
+        </p>
     </div>
 
     <div class="sidebar">
-        <a href="bookingList.php">Booking</a>
+        <a href="bookingList.php">Manage Booking</a>
         <a href="carList.php">Cars</a>
         <a href="feedbackList.php" class="active">Feedback List</a>
     </div>
@@ -382,7 +399,7 @@ $result = mysqli_query($dbCon, $sql);
                         echo "<td>" . $row['custName'] . "</td>";
                         echo "<td>" . $row['fbDescription'] . "</td>";
                         echo "<td>" . $row['fbRating'] . "</td>";
-                        echo "<td>" . $row['fbDate'] . "</td>"; 
+                        echo "<td>" . $row['fbDate'] . "</td>";
                         echo "</tr>";
                     }
                 } else {
@@ -408,4 +425,5 @@ $result = mysqli_query($dbCon, $sql);
         </div>
     </div>
 </body>
+
 </html>
