@@ -87,7 +87,7 @@ $conn->close();
 
         .dropdown {
             position: relative;
-            width: 130px;
+            width: 230px;
             height: 45px;
             align-content: center;
             border: 1px solid #000;
