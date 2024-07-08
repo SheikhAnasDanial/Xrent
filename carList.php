@@ -303,6 +303,14 @@ require_once "dbConnect.php";
             font-size: 16px;
             margin: 10px 0;
         }
+
+        .car-list td.action a.success {
+            color: blue;
+        }
+
+        .car-list td.action a.error {
+            color: red;
+        }
     </style>
     <script>
         function showConfirmation(carID) {
@@ -411,7 +419,7 @@ require_once "dbConnect.php";
                         echo "<td>" . $row['carBrand'] . "</td>";
                         echo "<td>" . $row['carName'] . "</td>";
                         echo "<td>" . ($row['carAvailability'] == 'Yes' ? 'AVAILABLE' : 'NOT AVAILABLE') . "</td>";
-                        echo '<td class="action"><a href="carDetail.php?id=' . $row['carID'] . '">Edit</a> <a href="#" onclick="return showConfirmation(\'' . $row['carID'] . '\')">Delete</a></td>';
+                        echo '<td class="action"><a class="success" href="carDetail.php?id=' . $row['carID'] . '">Edit</a> <a class="error" href="#" onclick="return showConfirmation(\'' . $row['carID'] . '\')">Delete</a></td>';
                         echo "</tr>";
                         $index++;
                     }

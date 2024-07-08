@@ -86,6 +86,20 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
             display: block;
         }
 
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+
         .admin-header {
             text-align: center;
             margin-top: 70px;
@@ -203,6 +217,26 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
             height: 20px;
             margin-right: 15px;
         }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            font-family: 'Poppins', sans-serif;
+            font-size: 20px;
+            font-weight: 400;
+            line-height: 24px;
+            color: rgba(0, 0, 0, 0.7);
+        }
+
+        .breadcrumb a {
+            text-decoration: none;
+            color: #000;
+        }
+
+        .breadcrumb a:hover {
+            color: grey;
+        }
+
 
         .receipt {
             color: #007bff;
@@ -349,6 +383,15 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
             </form>
         </div>
 
+        <div class="breadcrumb">
+            <?php if (isset($_GET['search']) && !empty($_GET['search'])) : ?>
+                <a href="bookingList.php">Booking List</a>
+                &nbsp;&nbsp;&nbsp;
+                Search Results for "<?php echo htmlspecialchars($_GET['search']); ?>"
+            <?php endif; ?>
+        </div>
+
+
         <table class="book-list">
             <thead>
                 <tr>
@@ -375,6 +418,7 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
                     $page = $_GET['page'];
                 }
 
+                $dbCon = new mysqli("localhost", "root", "", "xrent");
                 // SQL query to retrieve bookings data with totalAmount calculation
                 $sql = "SELECT b.bookID, car.carName, c.custName, b.bookDate, 
                             b.totalHour * car.carRatePerHour AS totalAmount, 

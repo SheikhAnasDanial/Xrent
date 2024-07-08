@@ -23,7 +23,7 @@ $sql = "SELECT f.fbID, b.bookID, c.custName, f.fbDescription, f.fbRating, f.fbDa
         LEFT JOIN customer c ON b.custID = c.custID";
 
 $filter_rating = isset($_GET['rating']) ? intval($_GET['rating']) : null;
-if (!is_null($filter_rating)) {
+if (!is_null($filter_rating) && $filter_rating > 0) {
     $sql .= " WHERE f.fbRating = $filter_rating";
 }
 
@@ -367,7 +367,7 @@ $result = mysqli_query($dbCon, $sql);
                 <form action="feedbackList.php" method="GET">
                     <p>Filter by Rating:</p>
                     <select name="rating" id="rating" onchange="this.form.submit()">
-                        <option value="" disabled selected>Select Rating</option>
+                        <option value="0" <?php if (is_null($filter_rating)) echo 'selected'; ?>>All Ratings</option>
                         <?php for ($i = 1; $i <= 5; $i++) { ?>
                             <option value="<?php echo $i; ?>" <?php if ($filter_rating == $i) echo 'selected'; ?>><?php echo $i; ?></option>
                         <?php } ?>

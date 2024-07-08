@@ -369,8 +369,8 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
                             <label for="carType">Car Type:</label>
                             <select id="carType" name="carType" required>
                                 <option value="MPV" <?php if ($row['carType'] == 'MPV') echo 'selected'; ?>>MPV</option>
-                                <option value="SEDAN" <?php if ($row['carType'] == 'SEDAN') echo 'selected'; ?>>SEDAN</option>
-                                <option value="Small CAR" <?php if ($row['carType'] == 'Small CAR') echo 'selected'; ?>>Small CAR</option>
+                                <option value="Sedan" <?php if ($row['carType'] == 'Sedan') echo 'selected'; ?>>Sedan</option>
+                                <option value="Small Car" <?php if ($row['carType'] == 'Small Car') echo 'selected'; ?>>Small Car</option>
                                 <option value="SUV" <?php if ($row['carType'] == 'SUV') echo 'selected'; ?>>SUV</option>
                                 <option value="4x4" <?php if ($row['carType'] == '4x4') echo 'selected'; ?>>4x4</option>
                             </select>
@@ -395,25 +395,25 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
                         <div class="form-group">
                             <label for="carGear">Gear Type:</label>
                             <select id="carGear" name="carGear" required>
-                                <option value="automatic" <?php if ($row['carGear'] == 'automatic') echo 'selected'; ?>>Automatic</option>
-                                <option value="manual" <?php if ($row['carGear'] == 'manual') echo 'selected'; ?>>Manual</option>
+                                <option value="Automatic" <?php if ($row['carGear'] == 'Automatic') echo 'selected'; ?>>Automatic</option>
+                                <option value="Manual" <?php if ($row['carGear'] == 'Manual') echo 'selected'; ?>>Manual</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label for="carFuel">Fuel Type:</label>
                             <select id="carFuel" name="carFuel" required>
-                                <option value="diesel" <?php if ($row['carFuel'] == 'diesel') echo 'selected'; ?>>Diesel</option>
-                                <option value="petrol" <?php if ($row['carFuel'] == 'petrol') echo 'selected'; ?>>Petrol</option>
+                                <option value="Diesel" <?php if ($row['carFuel'] == 'Diesel') echo 'selected'; ?>>Diesel</option>
+                                <option value="Petrol" <?php if ($row['carFuel'] == 'Petrol') echo 'selected'; ?>>Petrol</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label>Availability:</label>
                             <div class="availability-radio">
                                 <label for="available">
-                                    <input type="radio" id="carAvailability_yes" name="carAvailability" value="YES" <?php if ($row['carAvailability'] == 'YES') echo 'checked'; ?>> Available
+                                    <input type="radio" id="carAvailability_yes" name="carAvailability" value="Yes" <?php if ($row['carAvailability'] == 'Yes') echo 'checked'; ?>> Available
                                 </label>
                                 <label for="not-available">
-                                    <input type="radio" id="carAvailability_no" name="carAvailability" value="NO" <?php if ($row['carAvailability'] == 'NO') echo 'checked'; ?>> Not Available
+                                    <input type="radio" id="carAvailability_no" name="carAvailability" value="No" <?php if ($row['carAvailability'] == 'No') echo 'checked'; ?>> Not Available
                                 </label>
                             </div>
                         </div>

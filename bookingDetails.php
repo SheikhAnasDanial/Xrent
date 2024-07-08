@@ -11,8 +11,9 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
 require_once 'dbConnect.php';
 
 // Function to update booking status
-function updateBookingStatus($bookID, $status) {
-    global $dbCon;
+function updateBookingStatus($bookID, $status)
+{
+    $dbCon = new mysqli("localhost", "root", "", "xrent");
     $sql = "UPDATE booking SET bookStatus = '$status' WHERE bookID = '$bookID'";
     mysqli_query($dbCon, $sql);
 }
@@ -38,7 +39,7 @@ if (isset($_GET['bookID'])) {
             LEFT JOIN car c ON b.carID = c.carID
             LEFT JOIN customer cust ON b.custID = cust.custID
             WHERE b.bookID = '$bookID'";
-    
+
     $dbCon = new mysqli("localhost", "root", "", "xrent");
     $result = mysqli_query($dbCon, $sql);
     if ($result && mysqli_num_rows($result) > 0) {
@@ -59,6 +60,7 @@ mysqli_close($dbCon);
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -155,7 +157,7 @@ mysqli_close($dbCon);
             text-decoration: none;
             display: block;
             font-size: 16px;
-            font-family: Inter;
+            font-family: 'Inter', sans-serif;
             font-weight: 400;
         }
 
@@ -223,7 +225,7 @@ mysqli_close($dbCon);
             margin-top: 9rem;
             margin-left: 220px;
             padding: 20px;
-            background-color: #E1E1E1; /* Changed background color */
+            background-color: #E1E1E1;
             min-height: 80vh;
         }
 
@@ -252,21 +254,24 @@ mysqli_close($dbCon);
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
+            margin-left: 150px;
             display: flex;
             justify-content: space-between;
         }
 
-        .booking-details, .table-container {
+        .booking-details,
+        .table-container {
             width: 70%;
         }
 
         .table-container table {
             width: 70%;
             border-collapse: collapse;
+            margin-left: 50px;
         }
 
-        .table-container table, 
-        .table-container th, 
+        .table-container table,
+        .table-container th,
         .table-container td {
             border: 1px solid #ccc;
             padding: 8px;
@@ -279,7 +284,8 @@ mysqli_close($dbCon);
 
         .booking-details img {
             max-width: 100%;
-            max-height: 200px; /* Adjust height as needed */
+            max-height: 200px;
+            /* Adjust height as needed */
             object-fit: contain;
             border: 1px solid #ccc;
             border-radius: 5px;
@@ -311,8 +317,20 @@ mysqli_close($dbCon);
         .btn-theme:hover {
             background-color: #878787;
         }
+
+        .back-button {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .button {
+            margin-left: 46rem;
+        }
     </style>
 </head>
+
 <body>
     <header class="header">
         <img class="logo" src="image/logo.svg" alt="Logo XRENT">
@@ -330,7 +348,9 @@ mysqli_close($dbCon);
     </header>
 
     <div class="admin-header">
-        <p><hl>ADMIN PORTAL</hl></p>
+        <p>
+            <hl>ADMIN PORTAL</hl>
+        </p>
     </div>
 
     <div class="sidebar">
@@ -341,12 +361,8 @@ mysqli_close($dbCon);
 
     <div class="main-content">
         <div class="header-container">
-        <a href="bookingList.php">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-return-left" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5"/>
-            </svg>
-        </a>
-        <h1>BOOKING DETAILS</h1>
+            <a href="bookingList.php"><img class="back-button" src="image/back.svg"></a>
+            <h1>BOOKING DETAILS</h1>
         </div>
         <div class="booking-details">
             <div class="table-container">
@@ -398,13 +414,16 @@ mysqli_close($dbCon);
             </div>
         </div>
 
-        <?php if ($status == null): ?>
-            <form method="POST">
-                <input type="hidden" name="bookID" value="<?php echo $bookID; ?>">
-                <button type="submit" name="reject" class="btn-theme">Reject Booking</button>
-                <button type="submit" name="confirm" class="btn-theme">Confirm Booking</button>
-            </form>
+        <?php if ($status == "Pending") : ?>
+            <div class="button">
+                <form method="POST">
+                    <input type="hidden" name="bookID" value="<?php echo $bookID; ?>">
+                    <button type="submit" name="reject" class="btn-theme">Reject Booking</button>
+                    <button type="submit" name="confirm" class="btn-theme">Confirm Booking</button>
+                </form>
+            </div>
         <?php endif; ?>
     </div>
 </body>
+
 </html>

@@ -6,6 +6,24 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
     exit();
 }
 
+include 'dbConnect.php';
+
+// Fetch total rent count
+$sql_total_rent_count = "SELECT COUNT(bookID) as totalRentCount FROM booking where bookStatus = 'Pending'";
+$result_total_rent_count = $conn->query($sql_total_rent_count);
+$totalRentCount = $result_total_rent_count->fetch_assoc()['totalRentCount'];
+
+// Fetch grand total amount
+$sql_grand_total_amount = "SELECT SUM(totalAmount) as grandTotalAmount FROM bill";
+$result_grand_total_amount = $conn->query($sql_grand_total_amount);
+$grandTotalAmount = $result_grand_total_amount->fetch_assoc()['grandTotalAmount'];
+
+// Fetch number of feedbacks
+$sql_feedback_count = "SELECT COUNT(fbID) as feedbackCount FROM feedback";
+$result_feedback_count = $conn->query($sql_feedback_count);
+$feedbackCount = $result_feedback_count->fetch_assoc()['feedbackCount'];
+
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -86,6 +104,20 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
             display: block;
         }
 
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+
         .admin-header {
             text-align: center;
             margin-top: 70px;
@@ -100,7 +132,7 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
             background-color: rgb(255, 255, 255);
             border: 1px solid black;
             padding: 10px;
-            width: calc(100% - 10px);
+            width: 100%;
             position: relative;
             z-index: 2;
         }
@@ -144,18 +176,49 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
         .main-content {
             margin-left: 220px;
             padding: 20px;
-            margin-top: 120px;
         }
 
-        .chart-container {
-            width: 45%;
-            display: inline-block;
-            vertical-align: top;
+        .card-wrapper {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: calc(33% - 20px);
+            text-align: center;
+        }
+
+        .card h5 {
+            margin: 0;
+            font-size: 1.25rem;
+            color: #333;
+        }
+
+        .card p {
+            margin: 5px 0 0;
+            font-size: 1.5rem;
+            color: #666;
         }
 
         .charts-wrapper {
             display: flex;
             justify-content: space-between;
+            gap: 20px;
+        }
+
+        .chart-container {
+            width: 48%;
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
     </style>
     <script src="js/Chart.min.js"></script>
@@ -189,6 +252,22 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
     </div>
 
     <div class="main-content">
+
+        <div class="card-wrapper">
+            <div class="card">
+                <h5>Pending Booking Count</h5>
+                <p><?php echo $totalRentCount; ?></p>
+            </div>
+            <div class="card">
+                <h5>Grand Total Amount</h5>
+                <p>RM<?php echo number_format($grandTotalAmount, 2); ?></p>
+            </div>
+            <div class="card">
+                <h5>Number of Feedbacks</h5>
+                <p><?php echo $feedbackCount; ?></p>
+            </div>
+        </div>
+
         <div class="charts-wrapper">
             <div class="chart-container">
                 <h3>Top 5 Cars by Rent Count</h3>
@@ -196,7 +275,7 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
             </div>
 
             <div class="chart-container">
-                <h3>Rent Count by Category</h3>
+                <h3>Rent Count by Car Brand</h3>
                 <canvas id="pieChart"></canvas>
             </div>
         </div>
