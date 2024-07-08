@@ -209,6 +209,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             reader.readAsDataURL(file);
         }
+
+        function validateForm() {
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phNum').value;
+            const icNum = document.getElementById('icNum').value;
+            const email = document.getElementById('email').value;
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            const icPattern = /^[0-9]{12}$/;
+            const phonePattern = /^[0-9]{10,11}$/;
+            const namePattern = /^[A-Za-z\s]+$/; // Pattern to ensure name is alphabetic
+
+            // Check if any field is empty
+            if (name === '' || phone === '' || icNum === '' || email === '') {
+                alert('Please fill in all fields.');
+                return false;
+            }
+
+            // Check if phone and icNum are numeric
+            if (isNaN(phone) || isNaN(icNum)) {
+                alert('Phone number and IC Number must be numeric.');
+                return false;
+            }
+
+            // Check if name is alphabetic
+            if (!namePattern.test(name)) {
+                alert('Name must be alphabetic.');
+                return false;
+            }
+
+            // Validate email format
+            if (!emailPattern.test(email)) {
+                alert('Please enter a valid email address.');
+                return false;
+            }
+
+            // Validate IC number format
+            if (!icPattern.test(icNum)) {
+                alert('Please enter a valid IC Number (12 digits, numeric only).');
+                return false;
+            }
+
+            // Validate phone number format
+            if (!phonePattern.test(phone)) {
+                alert('Please enter a valid phone number (10-11 digits, numeric only).');
+                return false;
+            }
+
+            return true;
+        }
     </script>
 </head>
 
@@ -221,7 +270,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div>
             <h2 class="title">MY PROFILE</h2>
             <div class="left">
-                <form method="post" action="register.php" enctype="multipart/form-data">
+                <form method="post" action="register.php" enctype="multipart/form-data" onsubmit="return validateForm()">
                     <label for="name">Name</label>
                     <input type="text" id="name" name="name" placeholder="Name" required>
 
