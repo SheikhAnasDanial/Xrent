@@ -2,11 +2,18 @@
 session_start();
 
 if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
-    header("Location: login.html");
+    header("Location: login.php");
     exit();
 }
 
 include 'dbConnect.php';
+
+$user_id = $_SESSION['user_id'];
+$sql_admin_name = "SELECT adminName FROM admin WHERE adminID = '$user_id'";
+$result_admin_name = $conn->query($sql_admin_name);
+$adminName = $result_admin_name->fetch_assoc()['adminName'];
+
+$adminNameLength = strlen($adminName);
 
 // Fetch total rent count
 $sql_total_rent_count = "SELECT COUNT(bookID) as totalRentCount FROM booking where bookStatus = 'Pending'";
@@ -28,14 +35,12 @@ $conn->close();
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Staff Dashboard</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=ABeeZee:ital@0;1&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
         body {
             font-family: 'Poppins', sans-serif;
@@ -71,12 +76,22 @@ $conn->close();
         }
 
         .dropdown {
+            font-family: Poppins;
             position: relative;
             width: 120px;
             height: 45px;
+            align-content: center;
             border: 1px solid #000;
             background: #FFF;
             margin-right: 3rem;
+        }
+
+        .dropdown p {
+            margin-right: 2rem;
+        }
+
+        .dropdown img {
+            margin-left: -1rem;
         }
 
         .dropdown a {
@@ -87,6 +102,7 @@ $conn->close();
             padding: 0 1rem;
             height: 100%;
             font-size: 18px;
+            font-style: normal;
         }
 
         .dropdown-content {
@@ -110,7 +126,7 @@ $conn->close();
             text-decoration: none;
             display: block;
             font-size: 16px;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Poppins', sans-serif;
             font-weight: 400;
         }
 
@@ -222,6 +238,13 @@ $conn->close();
         }
     </style>
     <script src="js/Chart.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const adminNameLength = <?php echo $adminNameLength; ?>;
+            const dropdown = document.querySelector('.dropdown');
+            dropdown.style.width = `${adminNameLength * 1 + 200}px`; 
+        });
+    </script>
 </head>
 
 <body>
@@ -232,6 +255,7 @@ $conn->close();
             <div class="dropdown">
                 <a href="#">
                     <img class="iconprofile" src="image/icon profile.svg" alt="Icon Profile">
+                    <p style="text-align: center;"><span><?php echo $adminName; ?></span></p>
                     <img class="iconarrow" src="image/icon arrow.svg" alt="Icon Arrow">
                 </a>
                 <div class="dropdown-content">

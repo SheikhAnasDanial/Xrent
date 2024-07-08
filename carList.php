@@ -2,11 +2,52 @@
 session_start();
 
 if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
-    header("Location: login.html");
+    header("Location: login.php");
     exit();
 }
 
-require_once "dbConnect.php";
+include 'dbConnect.php';
+
+$user_id = $_SESSION['user_id'];
+$sql_admin_name = "SELECT adminName FROM admin WHERE adminID = '$user_id'";
+$result_admin_name = $conn->query($sql_admin_name);
+$adminName = $result_admin_name->fetch_assoc()['adminName'];
+
+$adminNameLength = strlen($adminName);
+
+// Close the database connection after fetching admin name
+$conn->close();
+
+// Initialize variables for search and pagination
+$search = '';
+$whereClause = '';
+$limit = 10; // Number of records per page
+$page = isset($_GET['page']) ? $_GET['page'] : 1; // Current page number
+$offset = ($page - 1) * $limit; // Calculate offset for pagination
+
+// Check if search parameter is set
+if (isset($_GET['search']) && !empty($_GET['search'])) {
+    $search = $_GET['search'];
+    // Prepare WHERE clause for SQL query
+    $whereClause = " WHERE carName LIKE '%$search%'";
+}
+
+// Query to fetch cars with pagination and search
+$dbCon = new mysqli("localhost", "root", "", "xrent");
+
+// Query to count total number of records with search filter
+$sql_total = "SELECT COUNT(carID) AS total FROM car" . $whereClause;
+$result_total = mysqli_query($dbCon, $sql_total);
+$data_total = mysqli_fetch_assoc($result_total);
+$total_pages = ceil($data_total['total'] / $limit);
+
+// Query to fetch cars with pagination and search
+$sql = "SELECT * FROM car" . $whereClause . " LIMIT $limit OFFSET $offset";
+$result = mysqli_query($dbCon, $sql);
+
+// Check if there are any rows returned
+$carsFound = mysqli_num_rows($result) > 0;
+
 ?>
 
 <!DOCTYPE html>
@@ -17,6 +58,7 @@ require_once "dbConnect.php";
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Car List</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=ABeeZee:ital@0;1&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
         body {
@@ -69,10 +111,6 @@ require_once "dbConnect.php";
 
         .dropdown img {
             margin-left: -1rem;
-        }
-
-        .dropdown .iconarrow {
-            margin-left: 5px;
         }
 
         .dropdown a {
@@ -320,6 +358,19 @@ require_once "dbConnect.php";
                 return false;
             }
         }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const adminNameLength = <?php echo $adminNameLength; ?>;
+            const dropdown = document.querySelector('.dropdown');
+            dropdown.style.width = `${adminNameLength * 1 + 200}px`; 
+
+            const searchButton = document.getElementById('search-button');
+            const searchForm = document.getElementById('search-form');
+            
+            searchButton.addEventListener('click', function() {
+                searchForm.submit();
+            });
+        });
     </script>
 </head>
 
@@ -330,6 +381,7 @@ require_once "dbConnect.php";
             <div class="dropdown">
                 <a href="#">
                     <img class="iconprofile" src="image/icon profile.svg" alt="Icon Profile">
+                    <p style="text-align: center;"><span><?php echo $adminName; ?></span></p>
                     <img class="iconarrow" src="image/icon arrow.svg" alt="Icon Arrow">
                 </a>
                 <div class="dropdown-content">
@@ -352,11 +404,21 @@ require_once "dbConnect.php";
     <div class="main-content">
         <div class="header-container">
             <h1>CAR LIST</h1>
-            <div class="search-container">
-                <a href="addCar.php" class="add-car-btn">ADD CAR</a>
-                <input type="text" placeholder="Search by Car Name"> <img class="search" src="image/search.svg">
-            </div>
+            <form method="GET" action="carList.php" id="search-form">
+                <div class="search-container">
+                    <a href="addCar.php" class="add-car-btn">ADD CAR</a>
+                    <input type="text" id="search" name="search" placeholder="Search by Car List">
+                    <a href="#" id="search-button"><img src="image/search.svg" alt="Search"></a>
+                </div>
+            </form>
         </div>
+
+        <div class="breadcrumb">
+            <?php if (isset($_GET['search']) && !empty($_GET['search'])) : ?>
+                Search Results for "<?php echo htmlspecialchars($_GET['search']); ?>"
+            <?php endif; ?>
+        </div>
+
         <?php
         // Update message
         if (isset($_SESSION['success_message'])) {
@@ -388,28 +450,11 @@ require_once "dbConnect.php";
                 </tr>
             </thead>
             <tbody>
-                <!-- PHP code to dynamically generate rows -->
                 <?php
-                // Include the database connection file
-                require_once "dbConnect.php";
+                // Initialize an index counter for numbering rows
+                $index = $offset + 1;
 
-                // Pagination variables
-                $limit = 10; // Number of records per page
-                $page = isset($_GET['page']) ? $_GET['page'] : 1; // Current page number
-
-                // Calculate offset for pagination
-                $offset = ($page - 1) * $limit;
-
-                $dbCon = new mysqli("localhost", "root", "", "xrent");
-
-                // Query to fetch cars with pagination
-                $sql = "SELECT * FROM car LIMIT $limit OFFSET $offset";
-                $result = mysqli_query($dbCon, $sql);
-
-                // Check if there are any rows returned
-                if (mysqli_num_rows($result) > 0) {
-                    // Initialize an index counter for numbering rows
-                    $index = $offset + 1;
+                if ($carsFound) {
                     // Loop through each row of data
                     while ($row = mysqli_fetch_assoc($result)) {
                         echo "<tr>";
@@ -426,32 +471,24 @@ require_once "dbConnect.php";
                 } else {
                     echo "<tr><td colspan='7'>No cars found</td></tr>";
                 }
-
-                // Pagination logic
-                $sql_total = "SELECT COUNT(carID) AS total FROM car";
-                $result_total = mysqli_query($dbCon, $sql_total);
-                $data_total = mysqli_fetch_assoc($result_total);
-                $total_pages = ceil($data_total['total'] / $limit);
-
-                // Close the connection
-                mysqli_close($dbCon);
                 ?>
             </tbody>
         </table>
+
         <div class="pagination-box">
             <div class="pagination">
                 <?php if ($page > 1) : ?>
-                    <a href="?page=<?php echo $page - 1; ?>">Previous</a>
+                    <a href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>">Previous</a>
                 <?php endif; ?>
                 <?php for ($i = 1; $i <= $total_pages; $i++) : ?>
                     <?php if ($i == $page) : ?>
                         <span><?php echo $i; ?></span>
                     <?php else : ?>
-                        <a href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                        <a href="?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>"><?php echo $i; ?></a>
                     <?php endif; ?>
                 <?php endfor; ?>
                 <?php if ($page < $total_pages) : ?>
-                    <a href="?page=<?php echo $page + 1; ?>">Next</a>
+                    <a href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>">Next</a>
                 <?php endif; ?>
             </div>
         </div>

@@ -2,11 +2,18 @@
 session_start();
 
 if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
-    header("Location: login.html");
+    header("Location: login.php");
     exit();
 }
 
 include 'dbConnect.php';
+
+$user_id = $_SESSION['user_id'];
+$sql_admin_name = "SELECT adminName FROM admin WHERE adminID = '$user_id'";
+$result_admin_name = $conn->query($sql_admin_name);
+$adminName = $result_admin_name->fetch_assoc()['adminName'];
+
+$adminNameLength = strlen($adminName);
 
 // Pagination variables
 $results_per_page = 5; // Number of results per page
@@ -27,7 +34,7 @@ if (!is_null($filter_rating) && $filter_rating > 0) {
     $sql .= " WHERE f.fbRating = $filter_rating";
 }
 
-$sql .= " ORDER BY f.fbID DESC";
+$sql .= " ORDER BY f.fbID ASC";
 
 $dbCon = new mysqli("localhost", "root", "", "xrent");
 // Execute SQL query with pagination
@@ -49,7 +56,7 @@ $result = mysqli_query($dbCon, $sql);
     <title>Feedback List</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=ABeeZee:ital@0;1&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
         body {
             font-family: 'Poppins', sans-serif;
@@ -103,10 +110,6 @@ $result = mysqli_query($dbCon, $sql);
             margin-left: -1rem;
         }
 
-        .dropdown .iconarrow {
-            margin-left: 5px;
-        }
-
         .dropdown a {
             color: black;
             display: flex;
@@ -139,7 +142,7 @@ $result = mysqli_query($dbCon, $sql);
             text-decoration: none;
             display: block;
             font-size: 16px;
-            font-family: Inter;
+            font-family: 'Poppins', sans-serif;
             font-weight: 400;
         }
 
@@ -329,6 +332,13 @@ $result = mysqli_query($dbCon, $sql);
             border: 1px solid #ccc;
         }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const adminNameLength = <?php echo $adminNameLength; ?>;
+            const dropdown = document.querySelector('.dropdown');
+            dropdown.style.width = `${adminNameLength * 1 + 200}px`; 
+        });
+    </script>
 </head>
 
 <body>
@@ -338,6 +348,7 @@ $result = mysqli_query($dbCon, $sql);
             <div class="dropdown">
                 <a href="#">
                     <img class="iconprofile" src="image/icon profile.svg" alt="Icon Profile">
+                    <p style="text-align: center;"><span><?php echo $adminName; ?></span></p>
                     <img class="iconarrow" src="image/icon arrow.svg" alt="Icon Arrow">
                 </a>
                 <div class="dropdown-content">
