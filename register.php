@@ -22,9 +22,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $max_id = $row['max_id'];
 
     if ($max_id) {
-        $next_id = 'R' . sprintf('%03d', intval($max_id) + 1);
+        $next_id = 'C' . sprintf('%03d', intval($max_id) + 1);
     } else {
-        $next_id = 'R001';
+        $next_id = 'C001';
     }
 
     $file = $_FILES['license'];
