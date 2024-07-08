@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['role'] = 'Cust';
 
         echo "New Customer record created successfully";
-        echo "<script>window.location.href = 'homepage.html';</script>";
+        echo "<script>window.location.href = 'homepage.php';</script>";
     } else {
         echo "Error: " . $sql . "<br>" . $conn->error;
     }
