@@ -125,18 +125,6 @@ $conn->close();
             margin-top: 10px;
         }
 
-        @media print {
-            .status {
-                -webkit-print-color-adjust: exact; 
-                background-color: #379FFF !important;
-                color: #fff;
-                padding: 5px 10px;
-                border-radius: 5px;
-                text-align: center;
-                margin-top: 10px;
-            }
-        }
-
         .table-container {
             margin-top: 20px;
         }
@@ -178,8 +166,24 @@ $conn->close();
         .print-button:hover {
             background-color: #555;
         }
-        
+
         @media print {
+            th {
+                -webkit-print-color-adjust: exact; /* Ensure accurate color printing */
+                background-color: #f2f2f2 !important;
+                color: #333;
+            }
+
+            .status {
+                -webkit-print-color-adjust: exact; 
+                background-color: #379FFF !important;
+                color: #fff;
+                padding: 5px 10px;
+                border-radius: 5px;
+                text-align: center;
+                margin-top: 10px;
+            }
+            
             .print-button-container {
                 display: none;
             }
@@ -201,7 +205,6 @@ $conn->close();
             <div class="right">
                 <p style="text-align: right;">Bill ID: <?php echo $billID; ?></p>
                 <p style="text-align: right;">Bill Date: <?php echo date('d/m/Y', strtotime($billDate)); ?></p>
-                <p style="text-align: right;">Total Amount: RM <?php echo number_format($totalAmount, 2); ?></p>
             </div>
         </div>
         <div class="table-container">
@@ -226,7 +229,8 @@ $conn->close();
         </div>
         <div class="total">
             <hr>
-            <p style="text-align: right;">Total: RM <?php echo number_format($totalAmount, 2); ?></p>
+            <p style="text-align: right;">Deposit: RM 100.00</p>
+            <p style="text-align: right;">Total Amount: RM <?php echo number_format($totalAmount, 2); ?></p>
             <hr>
             <div class="print-button-container">
                 <button class="print-button" onclick="window.print()">Print</button>
