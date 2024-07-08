@@ -28,19 +28,24 @@ if (isset($_GET['bookID'])) {
     exit();
 }
 
+// Debug: Check if the bookID exists in the booking table
+$checkBookIDSQL = "SELECT COUNT(*) FROM booking WHERE bookID = ?";
+$checkBookIDStmt = $conn->prepare($checkBookIDSQL);
+$checkBookIDStmt->bind_param("s", $bookID);
+$checkBookIDStmt->execute();
+$checkBookIDStmt->bind_result($bookIDCount);
+$checkBookIDStmt->fetch();
+$checkBookIDStmt->close();
+
+if ($bookIDCount == 0) {
+    echo "<script>alert('Invalid Booking ID');</script>";
+    header("Location: myBooking.php");
+    exit();
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
     $experience = $_POST['experience'];
     $feedbackMessage = $_POST['feedback-message'];
-
-    // Prepare and bind parameters for feedback insertion
-    $sql = "INSERT INTO feedback (fbID, fbDescription, fbRating, bookID, fbDate) VALUES (?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    
-    // Check for errors in preparing the statement
-    if (!$stmt) {
-        echo "<script>alert('Error preparing statement: " . $conn->error . "');</script>";
-        exit(); // Stop execution
-    }
 
     // Retrieve the last fbID from the feedback table to determine the next number
     $sql_last_id = "SELECT MAX(SUBSTRING(fbID, 2)) AS max_id FROM feedback";
@@ -58,6 +63,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
 
     // Current date for fbDate
     $fbDate = date('Y-m-d');
+
+    // Prepare and bind parameters for feedback insertion
+    $sql = "INSERT INTO feedback (fbID, fbDescription, fbRating, bookID, fbDate) VALUES (?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    
+    // Check for errors in preparing the statement
+    if (!$stmt) {
+        echo "<script>alert('Error preparing statement: " . $conn->error . "');</script>";
+        exit(); // Stop execution
+    }
 
     // Bind parameters
     $stmt->bind_param("ssiss", $fbID, $feedbackMessage, $experience, $bookID, $fbDate);

@@ -2,7 +2,7 @@
 session_start();
 
 if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
-    header("Location: login.html");
+    header("Location: login.php");
     exit();
 }
 
@@ -421,7 +421,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["receipt_proof"])) {
                 </tr>
                 <tr>
                     <td class="product">Total</td>
-                    <td class="subtotal">RM <?php echo htmlspecialchars(number_format($booking_details['totalCost'], 2) + 100.00); ?>.00</td>
+                    <td class="subtotal">
+                        RM <?php echo htmlspecialchars(number_format((float)$booking_details['totalCost'] + 100.00, 2)); ?>
+                    </td>
+
                 </tr>
             </table>
         </div>
