@@ -32,7 +32,7 @@ $stmt->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Booking</title>
-    <link rel="stylesheet" href="bill.css" type="text/css" media="print">
+    <link rel="stylesheet" href="bill.css" type="text/css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=ABeeZee:ital@0;1&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
@@ -200,50 +200,7 @@ $stmt->close();
         .table a:hover {
             text-decoration: underline;
         }
-
-        /* Modal styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            padding-top: 100px;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.9);
-        }
-
-        .modal-content {
-            margin: auto;
-            display: block;
-            width: 80%;
-            max-width: 700px;
-            height: auto;
-            max-height: 80%;
-            text-align: center;
-        }
-
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-        }
     </style>
-    <script>
-        function printBill(bookID) {
-            window.open('billReceipt.php?bookID=' + bookID, '_blank');
-        }
-    </script>
 </head>
 
 <body>
@@ -303,7 +260,7 @@ $stmt->close();
                         echo "<td>" . $row["carName"] . "</td>";
                         echo "<td>" . $row["bookDate"] . "</td>";
                         echo "<td>" . $row["bookStatus"] . "</td>";
-                        echo "<td><a href='javascript:void(0);' onclick='printBill(\"" . $row["bookID"] . "\")'>Print Bill</a></td>";
+                        echo "<td><a href='billReceipt.php?bookID=" . $row["bookID"] . "' target='_blank'>Print Bill</a></td>";
 
                         // Check if feedback exists for this booking
                         $fb_sql = "SELECT fbID FROM feedback WHERE bookID = ?";
@@ -319,7 +276,6 @@ $stmt->close();
                         }
 
                         echo "</tr>";
-                        echo "</tr>";
                         $no++;
                     }
                 } else {
@@ -327,46 +283,12 @@ $stmt->close();
                 }
 
                 $stmt->close();
-                $conn->close();
                 ?>
-
             </table>
         </div>
     </div>
-
-    <!-- Modal for printing bill receipt -->
-    <div id="myModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <iframe id="iframeBill" style="width: 100%; height: 100%; border: none;"></iframe>
-        </div>
-    </div>
-
-    <script>
-        var modal = document.getElementById("myModal");
-        var span = document.getElementsByClassName("close")[0];
-
-        function printBill(bookID) {
-            var iframeBill = document.getElementById("iframeBill");
-            iframeBill.src = 'billReceipt.php?bookID=' + bookID;
-            modal.style.display = "block";
-        }
-
-        span.onclick = function () {
-            modal.style.display = "none";
-            var iframeBill = document.getElementById("iframeBill");
-            iframeBill.src = '';
-        }
-
-        window.onclick = function (event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-                var iframeBill = document.getElementById("iframeBill");
-                iframeBill.src = '';
-            }
-        }
-    </script>
-
 </body>
-
 </html>
+<?php
+$conn->close();
+?>

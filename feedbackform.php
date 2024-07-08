@@ -11,6 +11,14 @@ include 'dbConnect.php';
 
 $user_id = $_SESSION['user_id'];
 
+$sql = "SELECT custName FROM customer WHERE custID = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $user_id);
+$stmt->execute();
+$stmt->bind_result($custName);
+$stmt->fetch();
+$stmt->close();
+
 // Fetching bookID from the URL parameter
 if (isset($_GET['bookID'])) {
     $bookID = $_GET['bookID'];
