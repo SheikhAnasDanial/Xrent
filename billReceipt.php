@@ -127,7 +127,7 @@ $conn->close();
 
         @media print {
             .status {
-                -webkit-print-color-adjust: exact; /* For Chrome, Safari */
+                -webkit-print-color-adjust: exact; 
                 background-color: #379FFF !important;
                 color: #fff;
                 padding: 5px 10px;

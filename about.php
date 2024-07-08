@@ -2,7 +2,7 @@
 session_start();
 
 if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
-    header("Location: login.html");
+    header("Location: login.php");
     exit();
 }
 
@@ -136,6 +136,7 @@ $conn->close();
             background-color: #f1f1f1;
         }
         .about-section {
+            font-family: Poppins;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -169,6 +170,7 @@ $conn->close();
             flex: 1;
             display: flex;
             justify-content: center;
+            animation: fadeInLeft 1s ease;
         }
 
         .about-image img {
@@ -177,6 +179,7 @@ $conn->close();
         }
 
         .goal-section {
+            font-family: Poppins;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -206,11 +209,34 @@ $conn->close();
             flex: 1;
             display: flex;
             justify-content: center;
+            animation: fadeInRight 1s ease;
         }
 
         .goal-image img {
             max-width: 100%;
             height: auto;
+        }
+
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
     </style>
     </head>
