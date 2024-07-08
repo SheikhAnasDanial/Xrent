@@ -69,13 +69,10 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bill Receipt</title>
     <style>
-        /* CSS styles for the receipt */
-        @import url('https://fonts.googleapis.com/css2?family=ABeeZee:ital@0;1&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap');
 
         body {
             background-color: #E1E1E1;
-            font-family: Poppins, Arial, sans-serif;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
         }
@@ -153,7 +150,7 @@ $conn->close();
             text-align: center; /* Center contents horizontally */
         }
 
-        .print-button {
+        .print-button-container {
             background-color: #333;
             color: #fff;
             border: none;

@@ -6,6 +6,16 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
     exit();
 }
 
+include 'dbConnect.php';
+
+$user_id = $_SESSION['user_id'];
+$sql_admin_name = "SELECT adminName FROM admin WHERE adminID = '$user_id'";
+$result_admin_name = $conn->query($sql_admin_name);
+$adminName = $result_admin_name->fetch_assoc()['adminName'];
+
+$adminNameLength = strlen($adminName);
+
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -17,7 +27,7 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
     <title>Booking List</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=ABeeZee:ital@0;1&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
         body {
             font-family: 'Poppins', sans-serif;
@@ -53,12 +63,22 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
         }
 
         .dropdown {
+            font-family: Poppins;
             position: relative;
             width: 120px;
             height: 45px;
+            align-content: center;
             border: 1px solid #000;
             background: #FFF;
             margin-right: 3rem;
+        }
+
+        .dropdown p {
+            margin-right: 2rem;
+        }
+
+        .dropdown img {
+            margin-left: -1rem;
         }
 
         .dropdown a {
@@ -69,6 +89,7 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
             padding: 0 1rem;
             height: 100%;
             font-size: 18px;
+            font-style: normal;
         }
 
         .dropdown-content {
@@ -92,7 +113,7 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
             text-decoration: none;
             display: block;
             font-size: 16px;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Poppins', sans-serif;
             font-weight: 400;
         }
 
@@ -196,9 +217,7 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
         .search-container {
             display: flex;
             justify-content: flex-end;
-            align-items: center;
             margin-bottom: 10px;
-            margin-top: 0;
         }
 
         .search-container input {
@@ -215,28 +234,10 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
         .search-container img {
             width: 20px;
             height: 20px;
+            flex-shrink: 0;
             margin-right: 15px;
+            margin-top: 10px;
         }
-
-        .breadcrumb {
-            display: flex;
-            align-items: center;
-            font-family: 'Poppins', sans-serif;
-            font-size: 20px;
-            font-weight: 400;
-            line-height: 24px;
-            color: rgba(0, 0, 0, 0.7);
-        }
-
-        .breadcrumb a {
-            text-decoration: none;
-            color: #000;
-        }
-
-        .breadcrumb a:hover {
-            color: grey;
-        }
-
 
         .receipt {
             color: #007bff;
@@ -288,9 +289,22 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
 
         .header-container h1 {
             margin: 0;
+            text-align: center;
         }
 
-        /* Modal styles */
+        .print-btn {
+            margin-right: 15px;
+            padding: 10px 20px;
+            background-color: #000000;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 10px;
+        }
+
+        .print-btn:hover {
+            background-color: #676767;
+        }
+
         .modal {
             display: none;
             /* Hidden by default */
@@ -341,6 +355,20 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
             text-decoration: none;
         }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const adminNameLength = <?php echo $adminNameLength; ?>;
+            const dropdown = document.querySelector('.dropdown');
+            dropdown.style.width = `${adminNameLength * 1 + 200}px`; 
+
+            const searchButton = document.getElementById('search-button');
+            const searchForm = document.getElementById('search-form');
+            
+            searchButton.addEventListener('click', function() {
+                searchForm.submit();
+            });
+        });
+    </script>
 </head>
 
 <body>
@@ -350,6 +378,7 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
             <div class="dropdown">
                 <a href="#">
                     <img class="iconprofile" src="image/icon profile.svg" alt="Icon Profile">
+                    <p style="text-align: center;"><span><?php echo $adminName; ?></span></p>
                     <img class="iconarrow" src="image/icon arrow.svg" alt="Icon Arrow">
                 </a>
                 <div class="dropdown-content">
@@ -373,24 +402,20 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
     <div class="main-content">
         <div class="header-container">
             <h1>BOOKING LIST</h1>
-            <form method="GET" action="bookingList.php">
+            <form method="GET" action="bookingList.php" id="search-form">
                 <div class="search-container">
+                    <a class="print-btn" href='bookReport.php' target='_blank'>Print</a>
                     <input type="text" id="search" name="search" placeholder="Search by Book ID">
-                    <button type="submit">
-                        <img src="image/search.svg" alt="Search">
-                    </button>
+                    <a href="#" id="search-button"><img src="image/search.svg" alt="Search"></a>
                 </div>
             </form>
         </div>
 
         <div class="breadcrumb">
             <?php if (isset($_GET['search']) && !empty($_GET['search'])) : ?>
-                <a href="bookingList.php">Booking List</a>
-                &nbsp;&nbsp;&nbsp;
                 Search Results for "<?php echo htmlspecialchars($_GET['search']); ?>"
             <?php endif; ?>
         </div>
-
 
         <table class="book-list">
             <thead>

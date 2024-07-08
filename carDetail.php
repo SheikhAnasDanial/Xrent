@@ -6,6 +6,16 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
     exit();
 }
 
+include 'dbConnect.php';
+
+$user_id = $_SESSION['user_id'];
+$sql_admin_name = "SELECT adminName FROM admin WHERE adminID = '$user_id'";
+$result_admin_name = $conn->query($sql_admin_name);
+$adminName = $result_admin_name->fetch_assoc()['adminName'];
+
+$adminNameLength = strlen($adminName);
+
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -16,7 +26,7 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
     <title>Car Detail</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=ABeeZee:ital@0;1&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
         body {
             font-family: 'Poppins', sans-serif;
@@ -70,10 +80,6 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
             margin-left: -1rem;
         }
 
-        .dropdown .iconarrow {
-            margin-left: 5px;
-        }
-
         .dropdown a {
             color: black;
             display: flex;
@@ -106,7 +112,7 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
             text-decoration: none;
             display: block;
             font-size: 16px;
-            font-family: Inter;
+            font-family: 'Poppins', sans-serif;
             font-weight: 400;
         }
 
@@ -304,13 +310,17 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
             left: 50%;
             transform: translate(-50%, -50%);
         }
-</style>
-
     </style>
     <script>
         function confirmUpdate() {
             return confirm("Are you sure you want to update this car?");
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const adminNameLength = <?php echo $adminNameLength; ?>;
+            const dropdown = document.querySelector('.dropdown');
+            dropdown.style.width = `${adminNameLength * 1 + 200}px`; 
+        });
     </script>
 </head>
 <body>
@@ -320,6 +330,7 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
             <div class="dropdown">
                 <a href="#">
                     <img class="iconprofile" src="image/icon profile.svg" alt="Icon Profile">
+                    <p style="text-align: center;"><span><?php echo $adminName; ?></span></p>
                     <img class="iconarrow" src="image/icon arrow.svg" alt="Icon Arrow">
                 </a>
                 <div class="dropdown-content">

@@ -10,6 +10,13 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
 // Include database connection
 require_once 'dbConnect.php';
 
+$user_id = $_SESSION['user_id'];
+$sql_admin_name = "SELECT adminName FROM admin WHERE adminID = '$user_id'";
+$result_admin_name = $conn->query($sql_admin_name);
+$adminName = $result_admin_name->fetch_assoc()['adminName'];
+
+$adminNameLength = strlen($adminName);
+
 // Function to update booking status
 function updateBookingStatus($bookID, $status)
 {
@@ -121,10 +128,6 @@ mysqli_close($dbCon);
             margin-left: -1rem;
         }
 
-        .dropdown .iconarrow {
-            margin-left: 5px;
-        }
-
         .dropdown a {
             color: black;
             display: flex;
@@ -157,7 +160,7 @@ mysqli_close($dbCon);
             text-decoration: none;
             display: block;
             font-size: 16px;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Poppins', sans-serif;
             font-weight: 400;
         }
 
@@ -329,6 +332,13 @@ mysqli_close($dbCon);
             margin-left: 46rem;
         }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const adminNameLength = <?php echo $adminNameLength; ?>;
+            const dropdown = document.querySelector('.dropdown');
+            dropdown.style.width = `${adminNameLength * 1 + 200}px`; 
+        });
+    </script>
 </head>
 
 <body>
@@ -338,6 +348,7 @@ mysqli_close($dbCon);
             <div class="dropdown">
                 <a href="#">
                     <img class="iconprofile" src="image/icon profile.svg" alt="Icon Profile">
+                    <p style="text-align: center;"><span><?php echo $adminName; ?></span></p>
                     <img class="iconarrow" src="image/icon arrow.svg" alt="Icon Arrow">
                 </a>
                 <div class="dropdown-content">
