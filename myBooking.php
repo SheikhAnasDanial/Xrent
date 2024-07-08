@@ -129,7 +129,7 @@ $stmt->close();
             text-decoration: none;
             display: block;
             font-size: 16px;
-            font-family: Inter;
+            font-family: 'Inter', sans-serif;
             font-weight: 400;
         }
 
