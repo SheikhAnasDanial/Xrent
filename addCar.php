@@ -1,5 +1,4 @@
 <?php
-
 session_start();
 
 if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
@@ -7,7 +6,16 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
     exit();
 }
 
-require_once 'dbConnect.php';
+include 'dbConnect.php';
+
+$user_id = $_SESSION['user_id'];
+$sql_admin_name = "SELECT adminName FROM admin WHERE adminID = '$user_id'";
+$result_admin_name = $conn->query($sql_admin_name);
+$adminName = $result_admin_name->fetch_assoc()['adminName'];
+
+$adminNameLength = strlen($adminName);
+
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -73,10 +81,6 @@ require_once 'dbConnect.php';
             margin-left: -1rem;
         }
 
-        .dropdown .iconarrow {
-            margin-left: 5px;
-        }
-
         .dropdown a {
             color: black;
             display: flex;
@@ -109,7 +113,7 @@ require_once 'dbConnect.php';
             text-decoration: none;
             display: block;
             font-size: 16px;
-            font-family: Inter;
+            font-family: 'Poppins', sans-serif;
             font-weight: 400;
         }
 
@@ -334,6 +338,20 @@ require_once 'dbConnect.php';
             transform: translate(-50%, -50%);
         }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const adminNameLength = <?php echo $adminNameLength; ?>;
+            const dropdown = document.querySelector('.dropdown');
+            dropdown.style.width = `${adminNameLength * 1 + 200}px`; 
+
+            const searchButton = document.getElementById('search-button');
+            const searchForm = document.getElementById('search-form');
+            
+            searchButton.addEventListener('click', function() {
+                searchForm.submit();
+            });
+        });
+    </script>
 </head>
 
 <body>
@@ -343,6 +361,7 @@ require_once 'dbConnect.php';
             <div class="dropdown">
                 <a href="#">
                     <img class="iconprofile" src="image/icon profile.svg" alt="Icon Profile">
+                    <p style="text-align: center;"><span><?php echo $adminName; ?></span></p>
                     <img class="iconarrow" src="image/icon arrow.svg" alt="Icon Arrow">
                 </a>
                 <div class="dropdown-content">
