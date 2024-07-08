@@ -291,13 +291,17 @@ $stmt->close();
                 </tr>
 
                 <?php
+                // Prepare SQL to fetch bookings for the logged-in customer
                 $sql = "SELECT b.bookID, b.carID, c.carName, b.bookDate, b.bookStatus, b.receiptProof
-                FROM booking b
-                JOIN car c ON b.carID = c.carID
-                LEFT JOIN bill ON b.bookID = bill.bookID
-                ORDER BY b.bookID ASC";
-
-                $result = $conn->query($sql);
+                        FROM booking b
+                        JOIN car c ON b.carID = c.carID
+                        WHERE b.custID = ?
+                        ORDER BY b.bookID ASC";
+                
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("s", $user_id);
+                $stmt->execute();
+                $result = $stmt->get_result();
 
                 if ($result->num_rows > 0) {
                     $no = 1;
@@ -317,7 +321,21 @@ $stmt->close();
                         }
                         echo "</td>";
 
-                        echo "<td><a href='feedbackform.php'>Give Feedback</a></td>";
+                        // Check if feedback exists for this booking
+                        $fb_sql = "SELECT fbID FROM feedback WHERE bookID = ?";
+                        $fb_stmt = $conn->prepare($fb_sql);
+                        $fb_stmt->bind_param("s", $row["bookID"]);
+                        $fb_stmt->execute();
+                        $fb_result = $fb_stmt->get_result();
+
+                        echo "<td>";
+                        if ($fb_result->num_rows > 0) {
+                            echo "<a href='feedbackDetails.php?bookID=" . $row["bookID"] . "'>View Feedback</a>";
+                        } else {
+                            echo "<a href='feedbackform.php?bookID=" . $row["bookID"] . "'>Give Feedback</a>";
+                        }
+                        echo "</td>";
+
                         echo "</tr>";
                         $no++;
                     }
@@ -358,8 +376,6 @@ $stmt->close();
                     }
                 });
             </script>
-
-
         </div>
     </div>
 </body>
