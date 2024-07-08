@@ -303,7 +303,7 @@ $stmt->close();
                         echo "<td>" . $row["carName"] . "</td>";
                         echo "<td>" . $row["bookDate"] . "</td>";
                         echo "<td>" . $row["bookStatus"] . "</td>";
-                        echo "<td><a href='javascript:void(0);' onclick='printBill(" . $row["bookID"] . ")'>Print Bill</a></td>";
+                        echo "<td><a href='javascript:void(0);' onclick='printBill(\"" . $row["bookID"] . "\")'>Print Bill</a></td>";
 
                         // Check if feedback exists for this booking
                         $fb_sql = "SELECT fbID FROM feedback WHERE bookID = ?";
@@ -319,22 +319,54 @@ $stmt->close();
                         }
 
                         echo "</tr>";
+                        echo "</tr>";
                         $no++;
                     }
                 } else {
                     echo "<tr><td colspan='7'>No bookings found.</td></tr>";
                 }
+
                 $stmt->close();
                 $conn->close();
                 ?>
+
             </table>
         </div>
     </div>
+
+    <!-- Modal for printing bill receipt -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <iframe id="iframeBill" style="width: 100%; height: 100%; border: none;"></iframe>
+        </div>
+    </div>
+
     <script>
+        var modal = document.getElementById("myModal");
+        var span = document.getElementsByClassName("close")[0];
+
         function printBill(bookID) {
-            window.open('billReceipt.php?bookID=' + bookID, '_blank');
+            var iframeBill = document.getElementById("iframeBill");
+            iframeBill.src = 'billReceipt.php?bookID=' + bookID;
+            modal.style.display = "block";
+        }
+
+        span.onclick = function () {
+            modal.style.display = "none";
+            var iframeBill = document.getElementById("iframeBill");
+            iframeBill.src = '';
+        }
+
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+                var iframeBill = document.getElementById("iframeBill");
+                iframeBill.src = '';
+            }
         }
     </script>
+
 </body>
 
 </html>
