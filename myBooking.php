@@ -32,6 +32,7 @@ $stmt->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Booking</title>
+    <link rel="stylesheet" href="bill.css" type="text/css" media="print">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=ABeeZee:ital@0;1&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
@@ -203,23 +204,15 @@ $stmt->close();
         /* Modal styles */
         .modal {
             display: none;
-            /* Hidden by default */
             position: fixed;
-            /* Stay in place */
             z-index: 1000;
-            /* Sit on top */
             padding-top: 100px;
-            /* Location of the box */
             left: 0;
             top: 0;
             width: 100%;
-            /* Full width */
             height: 100%;
-            /* Full height */
             overflow: auto;
-            /* Enable scroll if needed */
             background-color: rgba(0, 0, 0, 0.9);
-            /* Black w/ opacity */
         }
 
         .modal-content {
@@ -230,11 +223,6 @@ $stmt->close();
             height: auto;
             max-height: 80%;
             text-align: center;
-        }
-
-        .modal img {
-            width: 100%;
-            height: auto;
         }
 
         .close {
@@ -251,14 +239,19 @@ $stmt->close();
             text-decoration: none;
         }
     </style>
+    <script>
+        function printBill(bookID) {
+            window.open('billReceipt.php?bookID=' + bookID, '_blank');
+        }
+    </script>
 </head>
 
 <body>
     <header class="header">
         <img class="logo" src="image/logo.svg" alt="Logo XRENT">
         <nav class="navbar">
-            <a class="page " href="homepage.php">HOME</a>
-            <a class="page " href="cars.php">CARS</a>
+            <a class="page" href="homepage.php">HOME</a>
+            <a class="page" href="cars.php">CARS</a>
             <a class="page" href="about.php">ABOUT</a>
             <div class="dropdown">
                 <a>
@@ -282,7 +275,6 @@ $stmt->close();
                 <tr>
                     <th>NO</th>
                     <th>BOOK ID</th>
-                    <th>CAR ID</th>
                     <th>CAR NAME</th>
                     <th>BOOK DATE</th>
                     <th>STATUS</th>
@@ -291,12 +283,11 @@ $stmt->close();
                 </tr>
 
                 <?php
-                // Prepare SQL to fetch bookings for the logged-in customer
-                $sql = "SELECT b.bookID, b.carID, c.carName, b.bookDate, b.bookStatus, b.receiptProof
-                        FROM booking b
-                        JOIN car c ON b.carID = c.carID
-                        WHERE b.custID = ?
-                        ORDER BY b.bookID ASC";
+                $sql = "SELECT b.bookID, c.carName, b.bookDate, b.bookStatus, b.receiptProof
+                FROM booking b
+                JOIN car c ON b.carID = c.carID
+                WHERE b.custID = ?
+                ORDER BY b.bookID ASC";
                 
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param("s", $user_id);
@@ -309,17 +300,10 @@ $stmt->close();
                         echo "<tr>";
                         echo "<td>" . $no . "</td>";
                         echo "<td>" . $row["bookID"] . "</td>";
-                        echo "<td>" . $row["carID"] . "</td>";
                         echo "<td>" . $row["carName"] . "</td>";
                         echo "<td>" . $row["bookDate"] . "</td>";
                         echo "<td>" . $row["bookStatus"] . "</td>";
-                        echo "<td>";
-                        if (!empty($row['receiptProof'])) {
-                            echo "<a href='#' class='receipt' data-receipt-src='data:image/jpg;base64," . base64_encode($row['receiptProof']) . "'>View Receipt</a>";
-                        } else {
-                            echo "No Receipt";
-                        }
-                        echo "</td>";
+                        echo "<td><a href='javascript:void(0);' onclick='printBill(" . $row["bookID"] . ")'>Print Bill</a></td>";
 
                         // Check if feedback exists for this booking
                         $fb_sql = "SELECT fbID FROM feedback WHERE bookID = ?";
@@ -328,56 +312,29 @@ $stmt->close();
                         $fb_stmt->execute();
                         $fb_result = $fb_stmt->get_result();
 
-                        echo "<td>";
                         if ($fb_result->num_rows > 0) {
-                            echo "<a href='feedbackDetails.php?bookID=" . $row["bookID"] . "'>View Feedback</a>";
+                            echo "<td>Submitted</td>";
                         } else {
-                            echo "<a href='feedbackform.php?bookID=" . $row["bookID"] . "'>Give Feedback</a>";
+                            echo "<td><a href='feedbackForm.php?bookID=" . $row["bookID"] . "'>Submit Feedback</a></td>";
                         }
-                        echo "</td>";
 
                         echo "</tr>";
                         $no++;
                     }
                 } else {
-                    echo "<tr><td colspan='8'>No bookings found</td></tr>";
+                    echo "<tr><td colspan='7'>No bookings found.</td></tr>";
                 }
-
+                $stmt->close();
                 $conn->close();
                 ?>
             </table>
-
-            <!-- Modal for receipt image -->
-            <div id="myModal" class="modal">
-                <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <img id="modalImage" src="" alt="Receipt Image">
-                </div>
-            </div>
-
-
-            <!-- JavaScript for modal functionality -->
-            <script>
-                document.querySelectorAll('.receipt').forEach(item => {
-                    item.addEventListener('click', event => {
-                        let receiptImageSrc = item.getAttribute('data-receipt-src');
-                        document.getElementById('modalImage').src = receiptImageSrc;
-                        document.getElementById('myModal').style.display = "block";
-                    });
-                });
-
-                document.querySelector('.close').addEventListener('click', () => {
-                    document.getElementById('myModal').style.display = "none";
-                });
-
-                window.addEventListener('click', event => {
-                    if (event.target === document.getElementById('myModal')) {
-                        document.getElementById('myModal').style.display = "none";
-                    }
-                });
-            </script>
         </div>
     </div>
+    <script>
+        function printBill(bookID) {
+            window.open('billReceipt.php?bookID=' + bookID, '_blank');
+        }
+    </script>
 </body>
 
 </html>

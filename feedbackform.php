@@ -3,7 +3,7 @@ session_start();
 
 // Check if the user is logged in
 if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
-    header("Location: login.html");
+    header("Location: login.php");
     exit();
 }
 
@@ -11,35 +11,53 @@ include 'dbConnect.php';
 
 $user_id = $_SESSION['user_id'];
 
-$conn = new mysqli("localhost", "root", "", "xrent");
-
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+// Fetching bookID from the URL parameter
+if (isset($_GET['bookID'])) {
+    $bookID = $_GET['bookID'];
+} else {
+    echo "<script>alert('Invalid Booking ID');</script>";
+    header("Location: myBooking.php");
+    exit();
 }
 
-$sql = "SELECT custName FROM customer WHERE custID = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $user_id);
-$stmt->execute();
-$stmt->bind_result($custName);
-$stmt->fetch();
-$stmt->close();
-$conn->close();
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
-    $bookID = $_POST['book-id'];
-    $date = $_POST['date'];
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
     $experience = $_POST['experience'];
     $feedbackMessage = $_POST['feedback-message'];
-    $user = $_SESSION['username'];
 
-    $sql = "INSERT INTO feedback (bookID, date, experience, feedbackMessage, username) VALUES (?, ?, ?, ?, ?)";
+    // Prepare and bind parameters for feedback insertion
+    $sql = "INSERT INTO feedback (fbID, fbDescription, fbRating, bookID, fbDate) VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssiss", $bookID, $date, $experience, $feedbackMessage, $user);
+    
+    // Check for errors in preparing the statement
+    if (!$stmt) {
+        echo "<script>alert('Error preparing statement: " . $conn->error . "');</script>";
+        exit(); // Stop execution
+    }
 
+    // Retrieve the last fbID from the feedback table to determine the next number
+    $sql_last_id = "SELECT MAX(SUBSTRING(fbID, 2)) AS max_id FROM feedback";
+    $result_last_id = $conn->query($sql_last_id);
+    if ($result_last_id && $result_last_id->num_rows > 0) {
+        $row = $result_last_id->fetch_assoc();
+        $max_id = $row['max_id'];
+        $next_id = $max_id + 1;
+    } else {
+        $next_id = 1; // If no existing feedback, start from 1
+    }
+
+    // Format fbID as F001, F002, etc.
+    $fbID = 'F' . sprintf('%03d', $next_id);
+
+    // Current date for fbDate
+    $fbDate = date('Y-m-d');
+
+    // Bind parameters
+    $stmt->bind_param("ssiss", $fbID, $feedbackMessage, $experience, $bookID, $fbDate);
+
+    // Execute statement
     if ($stmt->execute()) {
-        echo "<script>alert('Feedback submitted successfully!');</script>";
+        echo "<script>alert('Feedback submitted successfully!'); window.location.href = 'myBooking.php';</script>";
+        exit(); // Stop execution after redirection
     } else {
         echo "<script>alert('Error: " . $stmt->error . "');</script>";
     }
@@ -48,9 +66,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $conn->close();
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -255,8 +273,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     </style>
 </head>
-
 <body>
+    <header class="header">
     <header class="header">
         <img class="logo" src="image/logo.svg" alt="Logo XRENT">
         <nav class="navbar">
@@ -277,24 +295,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
         </nav>
     </header>
+    </header>
 
     <div class="container">
-        <h1>FEEDBACK FORM</h1>
-        <form action="feedbackform.php" method="POST">
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="book-id">Book ID</label>
-                    <input type="text" id="book-id" name="book-id" required>
-                </div>
-                <div class="form-group">
-                    <label for="date">Date</label>
-                    <input type="date" id="date" name="date" required>
-                </div>
-            </div>
+        <h1 class="title">Feedback Form</h1>
+        <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']) . "?bookID=" . $bookID; ?>" method="POST">
             <div class="form-group">
-                <label for="experience">Share your experience with us</label>
+                <label for="experience">Rating:</label>
                 <select id="experience" name="experience" required>
-                    <option value="-">-</option>
+                    <option value="" disabled selected>Select rating</option>
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
@@ -303,14 +312,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </select>
             </div>
             <div class="form-group">
-                <textarea name="feedback-message" placeholder="Share Your Feedback Message." required></textarea>
+                <label for="feedback-message">Feedback Message:</label>
+                <textarea id="feedback-message" name="feedback-message" rows="4" cols="50" placeholder="Share Your Feedback Message." required></textarea>
             </div>
             <div class="buttons">
-                <button type="reset" class="cancel-btn">Cancel</button>
-                <button type="submit" class="submit-btn">Submit</button>
+                <button type="button" class="cancel-btn" onclick="window.location.href='myBooking.php';">Cancel</button>
+                <button type="submit" name="submit" class="submit-btn">Submit</button>
             </div>
         </form>
     </div>
 </body>
-
 </html>

@@ -2,14 +2,13 @@
 session_start();
 
 if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
-    header("Location: login.html");
+    header("Location: login.php");
     exit();
 }
 
 include 'dbConnect.php';
 
 $user_id = $_SESSION['user_id'];
-$carID = isset($_GET['carID']) ? $_GET['carID'] : '';
 
 $conn = new mysqli("localhost", "root", "", "xrent");
 
@@ -25,6 +24,41 @@ $stmt->bind_result($custName);
 $stmt->fetch();
 $stmt->close();
 
+// Retrieve bill details based on the latest booking
+$sql = "SELECT b.billID, b.billDate, b.totalAmount, b.bookID,
+               bo.startDate, bo.startTime, bo.endDate, bo.endTime, bo.totalHour,
+               c.carName, c.carRatePerHour
+        FROM bill b
+        INNER JOIN booking bo ON b.bookID = bo.bookID
+        INNER JOIN car c ON bo.carID = c.carID
+        WHERE bo.custID = ? 
+        ORDER BY b.billDate DESC
+        LIMIT 1";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    $billID = $row['billID'];
+    $billDate = $row['billDate'];
+    $totalAmount = $row['totalAmount'];
+    $bookID = $row['bookID'];
+    $startDate = $row['startDate'];
+    $startTime = $row['startTime'];
+    $endDate = $row['endDate'];
+    $endTime = $row['endTime'];
+    $totalHour = $row['totalHour'];
+    $carName = $row['carName'];
+    $carRatePerHour = $row['carRatePerHour'];
+} else {
+    // Handle case where no bill data is found
+    die("No bill data found.");
+}
+
+$stmt->close();
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -148,7 +182,7 @@ $stmt->close();
             font-family: Poppins;
             font-weight: 700;
             line-height: 39px;
-            word-wrap: break-word
+            word-wrap: break-word;
         }
 
         .container {
@@ -270,27 +304,22 @@ $stmt->close();
             line-height: 24px;
             cursor: pointer;
             margin-top: 20px;
+            margin-left: 18rem;
         }
 
         .print-button:hover {
             background-color: #333;
         }
-
-        .print {
-            display: flex;
-            justify-content: center;
-            width: 100%;
-        }
     </style>
 </head>
 
 <body>
-<header class="header">
+    <header class="header">
         <img class="logo" src="image/logo.svg" alt="Logo XRENT">
         <nav class="navbar">
-            <a class="page" href="homepage.php">HOME</a>
-            <a class="page active" href="cars.php">CARS</a>
-            <a class="page" href="about.php">ABOUT</a>
+            <a class="page" href="home.html">HOME</a>
+            <a class="page" href="cars.html">CARS</a>
+            <a class="page" href="about.html">ABOUT</a>
             <div class="dropdown">
                 <a>
                     <img class="iconprofile" src="image/icon profile.svg" alt="Icon Profile">
@@ -298,9 +327,9 @@ $stmt->close();
                     <img class="iconarrow" src="image/icon arrow.svg" alt="Icon Arrow">
                 </a>
                 <div class="dropdown-content">
-                    <a href="myProfile.php">My Profile</a>
-                    <a href="myBooking.php">My Booking</a>
-                    <a href="logout.php">Log Out</a>
+                    <a href="myProfile.html">My Profile</a>
+                    <a href="myBooking.html" class="page active">My Booking</a>
+                    <a href="logout.html">Log Out</a>
                 </div>
             </div>
         </nav>
@@ -315,49 +344,14 @@ $stmt->close();
             <div class="main-content">
                 <div class="left">
                     <img src="image/logo receipt.png" alt="Logo XRENT">
-                    <?php
-                    // Database connection
-                    $servername = "localhost";
-                    $username = "root";
-                    $password = "";
-                    $dbname = "xrent";
-
-                    $conn = new mysqli($servername, $username, $password, $dbname);
-
-                    // Check connection
-                    if ($conn->connect_error) {
-                        die("Connection failed: " . $conn->connect_error);
-                    }
-
-                    // Retrieve booking and car data from the database
-                    $bookID = 'B001'; // Replace 'B001' with the actual booking ID
-                    $sql_booking = "SELECT b.*, c.carName , c.carBrand FROM booking b JOIN car c ON b.carID = c.carID WHERE b.bookID = '$bookID'";
-                    $result_booking = $conn->query($sql_booking);
-
-                    // Retrieve bill data from the database
-                    $sql_bill = "SELECT * FROM bill WHERE bookID = '$bookID'";
-                    $result_bill = $conn->query($sql_bill);
-
-                    if ($result_booking->num_rows > 0 && $result_bill->num_rows > 0) {
-                        $row_booking = $result_booking->fetch_assoc();
-                        $row_bill = $result_bill->fetch_assoc();
-
-                        // Display the receipt details
-                        echo "<p>Book Date: " . $row_booking["bookDate"] . "</p>";
-                        echo "<p class='status'>SUCCESSFUL</p>";
-                    } else {
-                        echo "No booking or bill found.";
-                    }
-                    ?>
+                    <p> Book Date: <?php echo date('d/m/Y', strtotime($billDate)); ?></p>
+                    <p class="status">SUCCESSFUL</p>
                 </div>
                 <div class="right">
                     <img src="image/receipt item.png" alt="Receipt">
-                    <?php
-                    if (isset($row_bill)) {
-                        echo "<p>Bill ID: " . $row_bill["billID"] . "</p>";
-                        echo "<p>Bill Date: " . $row_bill["billDate"] . "</p>";
-                    }
-                    ?>
+                    <p>Bill ID : <?php echo $billID; ?></p>
+                    <p>Bill Date : <?php echo date('d/m/Y', strtotime($billDate)); ?></p>
+                    <p>Total : RM<?php echo number_format($totalAmount, 2); ?></p>
                 </div>
             </div>
             <div class="table-container">
@@ -368,26 +362,32 @@ $stmt->close();
                         <th>Total</th>
                     </tr>
                     <tr>
-                        <td><?php echo $row_booking["bookID"]; ?></td>
+                        <td><?php echo $bookID; ?></td>
                         <td>
-                            <h5><?php echo $row_booking["carBrand"] . " " . $row_booking["carName"]; ?></h5>
-                            <p>Pickup Date & Time: <?php echo $row_booking["startDate"] . " " . $row_booking["startTime"]; ?></p>
-                            <p>Dropoff Date & Time: <?php echo $row_booking["endDate"] . " " . $row_booking["endTime"]; ?></p>
-                            <p>Total Hour: <?php echo $row_booking["totalHour"]; ?> hours</p>
-                            <p>Total Cost: RM<?php echo $row_booking["totalHour"] * $row_booking["carRatePerHour"]; ?></p>
+                            <h5><?php echo $carName; ?></h5>
+                            <p>Pickup Date & Time :</p>
+                            <p><?php echo date('d/m/Y', strtotime($startDate)); ?> at <?php echo date('H:i', strtotime($startTime)); ?></p>
+                            <p>Dropoff Date & Time :</p>
+                            <p><?php echo date('d/m/Y', strtotime($endDate)); ?> at <?php echo date('H:i', strtotime($endTime)); ?></p>
+                            <p>Total Hour : <?php echo $totalHour; ?> hours</p>
+                            <p>Total Cost : RM<?php echo number_format(($totalHour * $carRatePerHour), 2); ?></p>
+                            <p>Pickup Location : </p>
+                            <p>XRent Chendering, Kuala Terengganu</p>
+                            <p>Dropoff Location : </p>
+                            <p>XRent Chendering, Kuala Terengganu</p>
                         </td>
-                        <td>RM<?php echo $row_bill["totalAmount"]; ?></td>
+                        <td>RM<?php echo number_format(($totalHour * $carRatePerHour), 2); ?></td>
                     </tr>
                 </table>
                 <div class="Total">
                     <hr>
-                    <p>DEPOSIT: RM100.00</p>
+                    <p>DEPOSIT : RM100.00</p>
                     <hr>
-                    <p>TOTAL: RM<?php echo $row_bill["totalAmount"] + 100; ?>.00</p>
+                    <p>TOTAL : RM<?php echo number_format($totalAmount, 2); ?></p>
                     <hr>
                 </div>
                 <div class="print">
-                    <button onclick="window.print()" class="print-button">Print</button>
+                    <input type="submit" id="print" name="print" value="Print" class="print-button"><br>
                 </div>
             </div>
         </div>

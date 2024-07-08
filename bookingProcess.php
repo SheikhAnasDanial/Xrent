@@ -2,7 +2,7 @@
 session_start();
 
 if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
-    header("Location: login.html");
+    header("Location: login.php");
     exit();
 }
 
@@ -40,40 +40,58 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-function generateSequentialBookID($conn) {
-    $prefix = 'B';
-    $sql = "SELECT bookID FROM booking ORDER BY bookID DESC LIMIT 1";
+function generateSequentialID($conn, $table, $column, $prefix) {
+    $sql = "SELECT $column FROM $table ORDER BY $column DESC LIMIT 1";
     $result = $conn->query($sql);
     $lastID = $result->fetch_assoc();
-    
+
     if ($lastID) {
-        $lastIDNumber = (int) substr($lastID['bookID'], 1);
+        $lastIDNumber = (int) substr($lastID[$column], strlen($prefix));
         $newIDNumber = $lastIDNumber + 1;
     } else {
         $newIDNumber = 1;
     }
-    
-    return $prefix . str_pad($newIDNumber, 4, '0', STR_PAD_LEFT);
+
+    return $prefix . str_pad($newIDNumber, 3, '0', STR_PAD_LEFT);
 }
 
-$bookID = generateSequentialBookID($conn);
+// Generate sequential IDs
+$bookID = generateSequentialID($conn, 'booking', 'bookID', 'B');
+$billID = generateSequentialID($conn, 'bill', 'billID', 'BL');
+
 $bookStatus = "Pending";
 $bookingDate = date('Y-m-d H:i:s');
-$adminID = "A001";
+$adminID = null;
 
-$sql = "INSERT INTO booking (bookID, bookStatus, bookDate, startDate, startTime, endDate, endTime, totalHour, carRatePerHour, receiptProof, adminID, custID, carID)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("sssssssssssss", $bookID, $bookStatus, $bookingDate, $startDate, $startTime, $endDate, $endTime, $totalHours, $carRatePerHour, $receiptProof, $adminID, $user_id, $carID);
+// Insert into booking table
+$sqlBooking = "INSERT INTO booking (bookID, bookStatus, bookDate, startDate, startTime, endDate, endTime, totalHour, receiptProof, adminID, custID, carID)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+$stmtBooking = $conn->prepare($sqlBooking);
+$stmtBooking->bind_param("sssssssssbss", $bookID, $bookStatus, $bookingDate, $startDate, $startTime, $endDate, $endTime, $totalHours, $receiptProof, $adminID, $user_id, $carID);
 
-if ($stmt->execute()) {
-    unset($_SESSION['booking_details']);
-    header("Location: myBooking.php");
-    exit();
+if ($stmtBooking->execute()) {
+    // Insert into bill table
+    $billDate = date('Y-m-d');
+    $totalAmount = $totalCost; // Adjust as needed based on your calculation
+
+    $sqlBill = "INSERT INTO bill (billID, billDate, totalAmount, bookID)
+                VALUES (?, ?, ?, ?)";
+    $stmtBill = $conn->prepare($sqlBill);
+    $stmtBill->bind_param("ssds", $billID, $billDate, $totalAmount, $bookID);
+
+    if ($stmtBill->execute()) {
+        unset($_SESSION['booking_details']);
+        header("Location: myBooking.php");
+        exit();
+    } else {
+        echo "Error inserting into bill table: " . $stmtBill->error;
+    }
+
+    $stmtBill->close();
 } else {
-    echo "Error: " . $stmt->error;
+    echo "Error inserting into booking table: " . $stmtBooking->error;
 }
 
-$stmt->close();
+$stmtBooking->close();
 $conn->close();
 ?>
