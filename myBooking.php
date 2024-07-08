@@ -271,8 +271,12 @@ $stmt->close();
 
                         if ($fb_result->num_rows > 0) {
                             echo "<td>Submitted</td>";
+                        } else if ($row["bookStatus"] == "Rejected") {
+                            echo "<td>No Feedback</td>";
+                        } else if ($row["bookStatus"] == "Pending") {
+                            echo "<td></td>";
                         } else {
-                            echo "<td><a href='feedbackForm.php?bookID=" . $row["bookID"] . "'>Submit Feedback</a></td>";
+                            echo "<td><a href='feedbackform.php?bookID=" . $row["bookID"] . "'>Submit Feedback</a></td>";
                         }
 
                         echo "</tr>";

@@ -166,13 +166,13 @@ $conn->close();
 
         @media print {
             th {
-                -webkit-print-color-adjust: exact; /* Ensure accurate color printing */
+                print-color-adjust: exact; /* Ensure accurate color printing */
                 background-color: #f2f2f2 !important;
                 color: #333;
             }
 
             .status {
-                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact; 
                 background-color: #379FFF !important;
                 color: #fff;
                 padding: 5px 10px;

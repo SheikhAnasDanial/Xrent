@@ -52,7 +52,7 @@ function generateSequentialID($conn, $table, $column, $prefix) {
         $newIDNumber = 1;
     }
 
-    return $prefix . str_pad($newIDNumber, 3, '0', STR_PAD_LEFT);
+    return $prefix . str_pad($newIDNumber, 4, '0', STR_PAD_LEFT);
 }
 
 // Generate sequential IDs
@@ -61,13 +61,13 @@ $billID = generateSequentialID($conn, 'bill', 'billID', 'BL');
 
 $bookStatus = "Pending";
 $bookingDate = date('Y-m-d H:i:s');
-$adminID = null;
+$adminID = "A001";
 
 // Insert into booking table
-$sqlBooking = "INSERT INTO booking (bookID, bookStatus, bookDate, startDate, startTime, endDate, endTime, totalHour, receiptProof, adminID, custID, carID)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+$sqlBooking = "INSERT INTO booking (bookID, bookStatus, bookDate, startDate, startTime, endDate, endTime, totalHour, carRatePerHour, receiptProof, adminID, custID, carID)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 $stmtBooking = $conn->prepare($sqlBooking);
-$stmtBooking->bind_param("sssssssssbss", $bookID, $bookStatus, $bookingDate, $startDate, $startTime, $endDate, $endTime, $totalHours, $receiptProof, $adminID, $user_id, $carID);
+$stmtBooking->bind_param("sssssssssssss", $bookID, $bookStatus, $bookingDate, $startDate, $startTime, $endDate, $endTime, $totalHours, $carRatePerHour, $receiptProof, $adminID, $user_id, $carID);
 
 if ($stmtBooking->execute()) {
     // Insert into bill table

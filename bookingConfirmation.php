@@ -2,7 +2,7 @@
 session_start();
 
 if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
-    header("Location: login.html");
+    header("Location: login.php");
     exit();
 }
 
@@ -439,7 +439,7 @@ $conn->close();
     <div class="container">
         <div class="car-container">
             <div class="cancel-icon">
-                <a href="cancel_booking.php?cancel_booking=true"><img class="cancel-icon" src="image/cancel-icon.svg" alt="Cancel Icon"></a>
+                <a href="bookingConfirmation.php?cancel_booking=true"><img class="cancel-icon" src="image/cancel-icon.svg" alt="Cancel Icon"></a>
             </div>
 
             <div class="car-img">
