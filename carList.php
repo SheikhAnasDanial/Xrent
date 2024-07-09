@@ -47,7 +47,6 @@ $result = mysqli_query($dbCon, $sql);
 
 // Check if there are any rows returned
 $carsFound = mysqli_num_rows($result) > 0;
-
 ?>
 
 <!DOCTYPE html>
@@ -349,6 +348,49 @@ $carsFound = mysqli_num_rows($result) > 0;
         .car-list td.action a.error {
             color: red;
         }
+        
+        #message-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 300px;
+        }
+
+        .message {
+            position: relative;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            animation: slideIn 0.5s forwards, fadeOut 0.5s forwards 6.5s;
+            display: none;
+        }
+
+        .error {
+            background-color: #f44336; /* Red */
+        }
+
+        @keyframes slideIn {
+            0% {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            0% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
     </style>
     <script>
         function showConfirmation(carID) {
@@ -420,22 +462,27 @@ $carsFound = mysqli_num_rows($result) > 0;
         </div>
 
         <?php
-        // Update message
-        if (isset($_SESSION['success_message'])) {
-            echo '<div class="success-message">' . $_SESSION['success_message'] . '</div>';
-            unset($_SESSION['success_message']);
-        }
-        if (isset($_SESSION['error_message'])) {
-            echo '<div class="error-message">' . $_SESSION['error_message'] . '</div>';
-            unset($_SESSION['error_message']);
-        }
+            if (isset($_SESSION['success_message'])) {
+                echo '<div class="success-message">' . $_SESSION['success_message'] . '</div>';
+                unset($_SESSION['success_message']);
+            }
+            if (isset($_SESSION['error_message'])) {
+                echo '<div class="error-message">' . $_SESSION['error_message'] . '</div>';
+                unset($_SESSION['error_message']);
+            }
 
-        // Delete message
-        if (isset($_GET['status']) && isset($_GET['message'])) {
-            $status = $_GET['status'];
-            $message = $_GET['message'];
-            echo '<div class="alert ' . ($status == 'success' ? 'alert-success' : 'alert-error') . '">' . htmlspecialchars($message) . '</div>';
-        }
+            if (isset($_GET['status']) && isset($_GET['message'])) {
+                $status = $_GET['status'];
+                $message = $_GET['message'];
+                echo '<div class="alert ' . ($status == 'success' ? 'alert-success' : 'alert-error') . '">' . htmlspecialchars($message) . '</div>';
+            }
+
+            if (isset($_SESSION['success_message'])) {
+                echo '<div class="alert alert-success">';
+                echo $_SESSION['success_message'];
+                echo '</div>';
+                unset($_SESSION['success_message']); 
+            }
         ?>
         <table class="car-list">
             <thead>

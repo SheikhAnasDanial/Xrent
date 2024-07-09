@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once 'dbConnect.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -30,22 +31,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $fileTmpName = $_FILES['car-image']['tmp_name'];
         $fileContent = addslashes(file_get_contents($fileTmpName));
 
-        // Insert into database
         $sql = "INSERT INTO `car` (`carID`, `carName`, `carType`, `carBrand`, `carSeatNum`, `carGear`, `carFuel`, `carAvailability`, `image`, `carRatePerHour`)
                 VALUES ('$carID', '$carName', '$carType', '$carBrand', '$seatNumber', '$gearbox', '$fuelType', '$availability', '$fileContent', '$ratePerHour')";
 
         if (mysqli_query($dbCon, $sql)) {
-            echo "New car record created successfully";
+            $_SESSION['success_message'] = "New car record created successfully";
+            header("Location: carList.php");
+            exit();
         } else {
-            echo "Error: " . $sql . "<br>" . mysqli_error($dbCon);
+            $_SESSION['error_message'] = "Error: " . $sql . "<br>" . mysqli_error($dbCon);
+            header("Location: carList.php");
+            exit();
         }
     } else {
-        echo "Please choose a file or check the file upload settings.";
+        $_SESSION['error_message'] = "Please choose a file or check the file upload settings.";
         if (isset($_FILES['car-image']['error'])) {
-            echo " File upload error: " . $_FILES['car-image']['error'];
+            $_SESSION['error_message'] .= " File upload error: " . $_FILES['car-image']['error'];
         }
+        header("Location: carList.php");
+        exit();
     }
 
-mysqli_close($dbCon);
+    mysqli_close($dbCon);
 }
 ?>
