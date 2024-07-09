@@ -310,7 +310,6 @@ $conn->close();
 <body>
 
     <div class="container" id="container">
-        <button class="close-button close-sign-up" id="close">X</button>
         <div class="form-container sign-up">
             <form method="post" action="insertProfile.php">
                 <h1>Create Account</h1><br>
