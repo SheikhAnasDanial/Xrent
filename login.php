@@ -316,6 +316,7 @@ $conn->close();
                 <h1>Sign In</h1><br>
                 <input type="email" name="email" placeholder="Email">
                 <input type="password" name="password" placeholder="Password"><br>
+                <span style="color: red;"><?php echo $error; ?></span><br>
                 <button type="submit">Sign In</button>
             </form>
         </div>
