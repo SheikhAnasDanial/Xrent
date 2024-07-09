@@ -3,11 +3,12 @@ session_start();
 include 'dbConnect.php';
 
 $error = "";
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
     $password = $_POST['password'];
+    $error = "";
 
+    // Check in the admin table
     $stmt = $conn->prepare("SELECT adminID, adminEmail, password, 'Admin' as role FROM admin WHERE adminEmail = ?");
     if ($stmt) {
         $stmt->bind_param("s", $email);
@@ -17,9 +18,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($stmt->num_rows > 0) {
             $stmt->bind_result($id, $email, $db_password, $role);
             $stmt->fetch();
+            if ($password === $db_password) { // Use password_verify if the passwords are hashed
+                $_SESSION['user_id'] = $id;
+                $_SESSION['email'] = $email;
+                $_SESSION['role'] = $role;
+                $_SESSION['password'] = $password;
+
+                echo "<script>window.location.href = 'adminDashboard.php';</script>";
+                exit();
+            } else {
+                $error = "Invalid password.";
+            }
             $stmt->close();
         } else {
             $stmt->close();
+            // Check in the customer table
             $stmt = $conn->prepare("SELECT custID, custEmail, password, 'Cust' as role FROM customer WHERE custEmail = ?");
             if ($stmt) {
                 $stmt->bind_param("s", $email);
@@ -29,29 +42,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 if ($stmt->num_rows > 0) {
                     $stmt->bind_result($id, $email, $db_password, $role);
                     $stmt->fetch();
+                    if ($password === $db_password) { // Use password_verify if the passwords are hashed
+                        $_SESSION['user_id'] = $id;
+                        $_SESSION['email'] = $email;
+                        $_SESSION['role'] = $role;
+                        $_SESSION['password'] = $password;
+
+                        echo "<script>window.location.href = 'homepage.php';</script>";
+                        exit();
+                    } else {
+                        $error = "Invalid password.";
+                    }
                     $stmt->close();
                 } else {
-                    $stmt->close();
                     $error = "Invalid email or password.";
                 }
             } else {
                 $error = "Error in query execution.";
             }
-        }
-
-        if (isset($id) && $password === $db_password) {
-            $_SESSION['user_id'] = $id;
-            $_SESSION['email'] = $email;
-            $_SESSION['role'] = $role;
-            $_SESSION['password'] = $password;
-
-            if ($role == 'Admin') {
-                echo "<script>window.location.href = 'adminDashboard.php';</script>";
-            } elseif ($role == 'Cust') {
-                echo "<script>window.location.href = 'homepage.php';</script>";
-            }
-        } else {
-            $error = "Invalid password.";
         }
     } else {
         $error = "Error in query execution.";
