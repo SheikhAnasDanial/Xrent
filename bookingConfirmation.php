@@ -63,21 +63,13 @@ $result = $stmt->get_result();
 // Check if there are overlapping bookings
 if ($result->num_rows > 0) {
     echo "<script>
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: 'The selected start date and time overlap with an existing booking.',
-        });
-    </script>";
+            alert('The selected start date and time overlap with an existing booking.');
+            window.location.href='booking.php?carID=" . $carID . "';
+          </script>";
 } else {
-    echo "<script>
-        Swal.fire({
-            icon: 'success',
-            title: 'Great!',
-            text: 'The selected start date and time are valid.',
-        });
-    </script>";
+    echo "<script>alert('The selected start date and time are valid.')</script>";
 }
+
 
 $stmt->close();
 

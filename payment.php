@@ -29,6 +29,12 @@ if (!$booking_details) {
     die("Booking details not found.");
 }
 
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (empty($_FILES["receipt_proof"]) || $_FILES["receipt_proof"]["error"] != UPLOAD_ERR_OK) {
+        echo "<script>alert('Please insert the receipt file.');</script>";
+    }
+}
+
 // Handle file upload
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["receipt_proof"])) {
     $file = $_FILES['receipt_proof'];
@@ -452,7 +458,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["receipt_proof"])) {
                     <p class="asterisk">*</p>
                 </div>
                 <div class="section-attach">
-                    <form method="POST" enctype="multipart/form-data">
+                    <form action="payment.php" method="POST" enctype="multipart/form-data">
                         <input type="file" id="receipt_proof" name="receipt_proof" accept="image/*,.pdf" onchange="displayFileName()">
                         <p id="fileNameDisplay" style="margin-top: 15px;"></p>
                         <button type="submit">Upload</button>

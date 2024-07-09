@@ -348,49 +348,6 @@ $carsFound = mysqli_num_rows($result) > 0;
         .car-list td.action a.error {
             color: red;
         }
-        
-        #message-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            width: 300px;
-        }
-
-        .message {
-            position: relative;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            animation: slideIn 0.5s forwards, fadeOut 0.5s forwards 6.5s;
-            display: none;
-        }
-
-        .error {
-            background-color: #f44336; /* Red */
-        }
-
-        @keyframes slideIn {
-            0% {
-                transform: translateY(-100%);
-                opacity: 0;
-            }
-            100% {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes fadeOut {
-            0% {
-                opacity: 1;
-            }
-            100% {
-                opacity: 0;
-            }
-        }
     </style>
     <script>
         function showConfirmation(carID) {
