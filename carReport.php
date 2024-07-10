@@ -107,7 +107,7 @@
             }
 
             .book-list th {
-                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
                 background-color: #C7C8CC !important;
                 color: black;
             }

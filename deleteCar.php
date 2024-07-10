@@ -18,7 +18,6 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
     $_SESSION['error_message'] = "Invalid car ID";
 }
 
-mysqli_close($dbCon);
 
 // Redirect back to carList.php
 header("Location: carList.php");
