@@ -270,7 +270,8 @@ $carsFound = mysqli_num_rows($result) > 0;
             margin-top: 10px;
         }
 
-        .add-car-btn {
+        .add-car-btn,
+        .print-btn {
             margin-right: 15px;
             padding: 10px 20px;
             background-color: #000000;
@@ -279,7 +280,8 @@ $carsFound = mysqli_num_rows($result) > 0;
             border-radius: 10px;
         }
 
-        .add-car-btn:hover {
+        .add-car-btn:hover,
+        .print-btn:hover {
             background-color: #676767;
         }
 
@@ -405,6 +407,7 @@ $carsFound = mysqli_num_rows($result) > 0;
             <h1>CAR LIST</h1>
             <form method="GET" action="carList.php" id="search-form">
                 <div class="search-container">
+                    <a class="print-btn" href='carReport.php' target='_blank'>PRINT</a>
                     <a href="addCar.php" class="add-car-btn">ADD CAR</a>
                     <input type="text" id="search" name="search" placeholder="Search by Car List">
                     <a href="#" id="search-button"><img src="image/search.svg" alt="Search"></a>
