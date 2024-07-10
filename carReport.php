@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking Report</title>
+    <title>Car Report</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=ABeeZee:ital@0;1&display=swap');
 
@@ -87,7 +87,12 @@
             width: 20px; 
         }
 
-        .total-bookings {
+        .book-list th.availability,
+        .book-list td.availability {
+            width: 20px; 
+        }
+
+        .total-cars {
             text-align: right;
             margin-top: 10px;
         }
@@ -108,13 +113,12 @@
             }
         }
     </style>
-
 </head>
 
 <body>
     <div class="main-content">
         <div class="header-container">
-            <h1>BOOKING REPORT</h1>
+            <h1>CAR REPORT</h1>
         </div>
         <div class="print-button-container">
             <button class="print-button" onclick="window.print()">PRINT</button>
@@ -123,48 +127,52 @@
         <?php
         require_once 'dbConnect.php';
 
-        $sql = "SELECT b.bookID, car.carName, c.custName, b.bookDate, 
-                    b.totalHour * car.carRatePerHour AS totalAmount, 
-                    b.receiptProof
-                FROM booking b
-                LEFT JOIN car ON b.carID = car.carID
-                LEFT JOIN customer c ON b.custID = c.custID";
+        $sql = "SELECT *
+                FROM car";
 
         $result = $conn->query($sql);
-        $totalBookings = $result->num_rows;
+        $totalCars = $result->num_rows;
         ?>
 
-        <div class="total-bookings">
-            Total Bookings: <?php echo $totalBookings; ?>
+        <div class="total-cars">
+            Total Cars: <?php echo $totalCars; ?>
         </div>
 
         <table class="book-list">
             <thead>
                 <tr>
                     <th class="no">NO</th>
-                    <th>BOOK ID</th>
-                    <th>CAR NAME</th>
-                    <th>CUSTOMER NAME</th>
-                    <th>BOOK DATE</th>
-                    <th>TOTAL AMOUNT</th>
+                    <th>ID</th>
+                    <th>NAME</th>
+                    <th>TYPE</th>
+                    <th>BRAND</th>
+                    <th class="availability">AVAILABILITY</th>
+                    <th>RATE PER HOUR</th>
                 </tr>
             </thead>
             <tbody>
                 <?php
-                if ($totalBookings > 0) {
-                    $no = 1;
+                require_once 'dbConnect.php';
+
+                $sql = "SELECT * FROM car";
+
+                $result = $conn->query($sql);
+
+                if ($result->num_rows > 0) {
+                    $no = 1; 
                     while ($row = $result->fetch_assoc()) {
                         echo "<tr>";
-                        echo "<td class='no'>" . $no++ . "</td>";
-                        echo "<td>" . $row['bookID'] . "</td>";
+                        echo "<td class='no'>" . $no++ . "</td>"; 
+                        echo "<td>" . $row['carID'] . "</td>";
                         echo "<td>" . $row['carName'] . "</td>";
-                        echo "<td>" . $row['custName'] . "</td>";
-                        echo "<td>" . $row['bookDate'] . "</td>";
-                        echo "<td>RM " . number_format($row['totalAmount'], 2) . "</td>";
+                        echo "<td>" . $row['carType'] . "</td>";
+                        echo "<td>" . $row['carBrand'] . "</td>";
+                        echo "<td>" . $row['carAvailability'] . "</td>";
+                        echo "<td>" . $row['carRatePerHour'] . "</td>";
                         echo "</tr>";
                     }
                 } else {
-                    echo "<tr><td colspan='6'>No bookings found</td></tr>";
+                    echo "<tr><td colspan='7'>No bookings found</td></tr>";
                 }
                 $conn->close();
                 ?>

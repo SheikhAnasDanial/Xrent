@@ -404,7 +404,7 @@ $conn->close();
             <h1>BOOKING LIST</h1>
             <form method="GET" action="bookingList.php" id="search-form">
                 <div class="search-container">
-                    <a class="print-btn" href='bookReport.php' target='_blank'>Print</a>
+                    <a class="print-btn" href='bookReport.php' target='_blank'>PRINT</a>
                     <input type="text" id="search" name="search" placeholder="Search by Book ID">
                     <a href="#" id="search-button"><img src="image/search.svg" alt="Search"></a>
                 </div>
